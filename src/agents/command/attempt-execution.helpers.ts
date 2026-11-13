@@ -45,16 +45,37 @@ import type { AgentCommandOpts } from "./types.js";
 
 const CLAUDE_CLI_TRANSCRIPT_MAX_RECORDS = 500;
 
-export function resolveCommandReplyExpectation(params: {
+export function resolveEmbeddedHarnessOverride(
+  requestedHarnessId: string | undefined,
+  sessionRuntimeOverride: string | undefined,
+  policy: { runtime: string; runtimeSource?: string },
+): string | undefined {
+  return (
+    requestedHarnessId ??
+    sessionRuntimeOverride ??
+    (policy.runtime === "openclaw" && policy.runtimeSource !== "implicit" ? "openclaw" : undefined)
+  );
+}
+
+type CommandReplyOptionsParams = {
   cfg: OpenClawConfig;
   sessionKey?: string;
   sessionEntry?: Pick<SessionEntry, "chatType">;
   messageChannel?: string;
   opts: Pick<
     AgentCommandOpts,
-    "lane" | "privateCompletion" | "inputProvenance" | "replyExpectation"
+    | "lane"
+    | "privateCompletion"
+    | "inputProvenance"
+    | "replyExpectation"
+    | "sourceReplyDeliveryMode"
+    | "reactionToolFinalByDefault"
   >;
-}): ReplyExpectation | undefined {
+};
+
+function resolveCommandReplyExpectation(
+  params: CommandReplyOptionsParams,
+): ReplyExpectation | undefined {
   // Internal producers own whether this input owes a result. Routing is only a
   // fallback for ordinary command requests, never a reason to override that fact.
   if (params.opts.replyExpectation !== undefined) {
@@ -80,6 +101,14 @@ export function resolveCommandReplyExpectation(params: {
   }).policy === "allow"
     ? "optional"
     : "required";
+}
+
+export function resolveCommandReplyOptions(params: CommandReplyOptionsParams) {
+  return {
+    sourceReplyDeliveryMode: params.opts.sourceReplyDeliveryMode,
+    reactionToolFinalByDefault: params.opts.reactionToolFinalByDefault,
+    terminalReplyExpectation: resolveCommandReplyExpectation(params),
+  };
 }
 
 function normalizeClaudeCliSessionId(sessionId: string | undefined): string | undefined {

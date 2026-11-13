@@ -11,6 +11,10 @@ export function isUserModelAuthProfileId(authProfileId: string): boolean {
   return parseUserModelAuthProfileId(authProfileId) !== undefined;
 }
 
+export function hasUserModelAuthProfileId(...authProfileIds: Array<string | undefined>): boolean {
+  return authProfileIds.some((profileId) => isUserModelAuthProfileId(profileId?.trim() ?? ""));
+}
+
 /** A storage locator only; the live owner and exact credential still need to exist. */
 export function parseUserModelAuthProfileId(
   authProfileId: string,

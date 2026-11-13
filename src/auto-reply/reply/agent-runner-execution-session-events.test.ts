@@ -89,9 +89,9 @@ function expectedCompletionEvidence(runtime: "embedded" | "cli") {
 describe("ordinary session event execution", () => {
   it.for(["embedded", "cli"] as const)(
     "restores exec guidance after queue overflow in the %s turn without changing the system prefix",
-    async (runtime, { signal, onTestFinished }) => {
+    async (runtime, { signal, onTestFinished: finishTest }) => {
       const queue = createQueueCase({ mode: "followup", cap: 1 }, 2);
-      onTestFinished(() => {
+      finishTest(() => {
         clearFollowupQueue(queue.key);
       });
       const completion = createFollowupRun();
@@ -272,13 +272,13 @@ describe("ordinary session event execution", () => {
     },
   ])(
     "preserves scheduled fallback policy: $label",
-    async ({ fallbacks, locked, expected }, { onTestFinished }) => {
+    async ({ fallbacks, locked, expected }, { onTestFinished: finishTest }) => {
       const { resolveModelFallbackOptions } = await import("./agent-runner-run-params.js");
       const utils = await import("./agent-runner-utils.js");
       const resolver = vi.mocked(utils.resolveModelFallbackOptions);
       const previousResolver = resolver.getMockImplementation();
       resolver.mockImplementation(resolveModelFallbackOptions);
-      onTestFinished(() => {
+      finishTest(() => {
         if (previousResolver) {
           resolver.mockImplementation(previousResolver);
         }
@@ -314,7 +314,7 @@ describe("ordinary session event execution", () => {
     },
   ])(
     "keeps the scheduled $label account over destination auth through execution and settlement",
-    async ({ profileId }, { onTestFinished }) => {
+    async ({ profileId }, { onTestFinished: finishTest }) => {
       const followupRun = createFollowupRun();
       const automation = createScheduledAutomation();
       automation.job.inferenceBinding = {
@@ -349,7 +349,7 @@ describe("ordinary session event execution", () => {
         resolveCliAuthProfile: vi.fn(async () => profileId),
         dispose,
       });
-      onTestFinished(() => acquire.mockRestore());
+      finishTest(() => acquire.mockRestore());
       const settle = vi.fn(async () => {
         expect(dispose).not.toHaveBeenCalled();
       });
@@ -548,7 +548,7 @@ describe("ordinary session event execution", () => {
 
   it.for([false, true])(
     "carries scheduled credential authority into CLI preparation (revoked=%s)",
-    async (revoke, { onTestFinished }) => {
+    async (revoke, { onTestFinished: finishTest }) => {
       const followupRun = createFollowupRun();
       useCliFallback(followupRun);
       const automation = createScheduledAutomation();
@@ -581,7 +581,7 @@ describe("ordinary session event execution", () => {
         resolveCliAuthProfile: vi.fn(async () => "scheduled-profile"),
         dispose: vi.fn(),
       });
-      onTestFinished(() => acquire.mockRestore());
+      finishTest(() => acquire.mockRestore());
       state.runCliAgentMock.mockImplementationOnce(async (params: RunCliAgentParams) => {
         expect(params.authProfileId).toBe("scheduled-profile");
         expect(params.assertCurrent).toBeTypeOf("function");

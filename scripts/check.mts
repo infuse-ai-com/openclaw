@@ -46,7 +46,7 @@ export const PREFLIGHT_CHECKS: CheckCommand[] = [
 
 export function usage() {
   return [
-    "Usage: node --import tsx scripts/check.mts [--base <ref>] [--timed] [--include-architecture] [--include-test-types]",
+    "Usage: node --import tsx scripts/check.mts [--base <ref>] [--timed] [--include-architecture] [--include-test-types] [--lint-changed]",
     "",
     "Runs the local check graph: guard preflights, typecheck, lint, and policy guards.",
     "",
@@ -55,6 +55,7 @@ export function usage() {
     "  --timed                 Print timing summary even when checks pass.",
     "  --include-architecture  Run architecture import-cycle checks instead of runtime cycles.",
     "  --include-test-types    Typecheck production and test sources.",
+    "  --lint-changed          Lint source files changed from --base; ratchets still cover the full delta.",
     "  -h, --help              Show this help.",
   ].join("\n");
 }
@@ -62,12 +63,20 @@ export function usage() {
 function parseCheckArgs(argv: string[]) {
   return parseFlagArgs(
     argv,
-    { base: "", help: false, includeArchitecture: false, includeTestTypes: false, timed: false },
+    {
+      base: "",
+      help: false,
+      includeArchitecture: false,
+      includeTestTypes: false,
+      lintChanged: false,
+      timed: false,
+    },
     [
       stringFlag("--base", "base", { rejectShortOptions: true }),
       booleanFlag("--timed", "timed", true, { repeatable: true }),
       booleanFlag("--include-architecture", "includeArchitecture", true, { repeatable: true }),
       booleanFlag("--include-test-types", "includeTestTypes", true, { repeatable: true }),
+      booleanFlag("--lint-changed", "lintChanged", true, { repeatable: true }),
       booleanFlag("--help", "help", true, { repeatable: true }),
       booleanFlag("-h", "help", true, { repeatable: true }),
     ],
@@ -92,6 +101,11 @@ export async function main(argv = process.argv.slice(2)) {
   if (args.help) {
     console.log(usage());
     process.exitCode = 0;
+    return;
+  }
+  if (args.lintChanged && !args.base) {
+    console.error("--lint-changed requires --base");
+    process.exitCode = 2;
     return;
   }
 
@@ -143,7 +157,14 @@ export async function main(argv = process.argv.slice(2)) {
       name: "lint",
       parallel: false,
       commands: [
-        { name: "lint", args: ["lint", ...(args.base ? ["--base", args.base] : [])] },
+        {
+          name: "lint",
+          args: [
+            "lint",
+            ...(args.base ? ["--base", args.base] : []),
+            ...(args.lintChanged ? ["--changed"] : []),
+          ],
+        },
         { name: "format", args: ["format:check"] },
       ],
     },

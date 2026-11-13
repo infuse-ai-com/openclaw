@@ -202,7 +202,7 @@ export async function runCliFallbackCandidate(
             activeSessionEntry: sessionEntry,
           });
         const scheduledInference = turn.followupRun.run.scheduledAutomation
-          ? (params.runInference as CronRunInference | undefined)
+          ? (params.runInference as CronRunInference | undefined) // SAFETY: only automation prepares CronRunInference.
           : undefined;
         // The CLI owner must see explicit pins before provider scoping can discard them.
         // A recorded account runs only when this backend forwards exactly that account.

@@ -41,7 +41,6 @@ import {
   refreshTranscriptByteCompactionLatch,
 } from "../../context-engine/transcript-byte-limit.js";
 import { logVerbose } from "../../globals.js";
-import { isAbortError } from "../../infra/abort-signal.js";
 import { clearAgentRunContext, registerAgentRunContext } from "../../infra/agent-run-registry.js";
 import { emitAgentRunStatusEvent } from "../../infra/agent-run-status-events.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -51,7 +50,7 @@ import { isIncognitoSessionKey, isUnscopedSessionKeySentinel } from "../../routi
 import { resolveSessionPinnedHarnessId } from "../../sessions/agent-harness-session-key.js";
 import type { UserTurnTranscriptAdmissionReceipt } from "../../sessions/user-turn-transcript.types.js";
 import { createLazyImportLoader } from "../../shared/lazy-promise.js";
-import { isUserModelAuthProfileId } from "../../state/user-model-account-id.js";
+import { hasUserModelAuthProfileId } from "../../state/user-model-account-id.js";
 import type { VerboseLevel } from "../thinking.js";
 import type { GetReplyOptions, ReplyPayload } from "../types.js";
 import {
@@ -78,8 +77,8 @@ import {
 import {
   buildVisibleMemoryFlushFailure,
   resolveVisibleMemoryFlushErrorPayloads,
-  truncateMemoryFlushErrorMessage,
 } from "./memory-flush-errors.js";
+import { recordMemoryFlushFailure, type MemoryFlushResult } from "./memory-flush-failure.js";
 import {
   isToolsMemoryFlushPlan,
   memoryFlushResultIsSilent,
@@ -103,7 +102,6 @@ import type { ReplyOperation } from "./reply-run-registry.js";
 import { acknowledgeReplySessionTransition } from "./reply-run-registry.state.js";
 import { incrementCompactionCount } from "./session-updates.js";
 
-const MAX_FLUSH_FAILURES = 3;
 const preflightCompactionLog = createSubsystemLogger("auto-reply/preflight-compaction");
 const memoryFlushLog = createSubsystemLogger("auto-reply/memory-flush");
 
@@ -627,15 +625,6 @@ export async function runSessionCompactionIfNeeded(params: {
   }
 }
 
-type MemoryFlushOutcome = "skipped" | "completed" | "failed" | "exhausted";
-
-type MemoryFlushResult = {
-  sessionEntry?: SessionEntry;
-  outcome: MemoryFlushOutcome;
-};
-
-type MemoryFlushRunParams = Parameters<typeof runMemoryFlushIfNeeded>[0];
-
 /** Runs pre-compaction memory flush when transcript state warrants it. */
 export async function runMemoryFlushIfNeeded(params: {
   /** Supplied only by required preflight, while this admitted input is unprocessed. */
@@ -659,11 +648,11 @@ export async function runMemoryFlushIfNeeded(params: {
     params.sessionEntry ??
     (params.sessionKey ? params.sessionStore?.[params.sessionKey] : undefined);
   const usesPersonalAccount = () =>
-    [
+    hasUserModelAuthProfileId(
       params.followupRun.run.authProfileId,
       entry?.authProfileOverride,
       params.sessionKey ? params.sessionStore?.[params.sessionKey]?.authProfileOverride : undefined,
-    ].some((profileId) => isUserModelAuthProfileId(profileId?.trim() ?? ""));
+    );
   // Detached memory inference does not yet retain the source's exact personal account.
   if (usesPersonalAccount()) {
     return { sessionEntry: entry, outcome: "skipped" };
@@ -1125,68 +1114,4 @@ export async function runMemoryFlushIfNeeded(params: {
   }
 }
 
-async function recordMemoryFlushFailure(
-  error: unknown,
-  run: MemoryFlushRunParams,
-  initialSessionEntry?: SessionEntry,
-): Promise<MemoryFlushResult> {
-  let sessionEntry = initialSessionEntry;
-  let outcome: MemoryFlushOutcome = "failed";
-  // Caller cancellation may use any reason, not only an AbortError instance.
-  if ((run.replyOperation?.abortSignal ?? run.abortSignal)?.aborted) {
-    logVerbose("memory flush cancelled by its owner");
-    return { sessionEntry, outcome };
-  }
-  const truncatedError = truncateMemoryFlushErrorMessage(error);
-  const { sessionKey, storePath } = run;
-  if (!isAbortError(error) && storePath && sessionKey) {
-    try {
-      let failureCount = 0;
-      const updatedEntry = await updateSessionEntry(
-        { storePath, sessionKey },
-        (currentEntry) => {
-          failureCount =
-            (currentEntry.memoryFlush?.kind === "failed"
-              ? currentEntry.memoryFlush.failureCount
-              : 0) + 1;
-          return {
-            memoryFlush:
-              failureCount >= MAX_FLUSH_FAILURES
-                ? { kind: "succeeded", compactionCount: currentEntry.compactionCount ?? 0 }
-                : {
-                    kind: "failed",
-                    ...(currentEntry.memoryFlush?.compactionCount !== undefined
-                      ? { compactionCount: currentEntry.memoryFlush.compactionCount }
-                      : {}),
-                    failureCount,
-                  },
-          };
-        },
-        { skipMaintenance: true, takeCacheOwnership: true },
-      );
-      if (updatedEntry) {
-        sessionEntry = updatedEntry;
-        if (run.sessionStore) {
-          run.sessionStore[sessionKey] = updatedEntry;
-        }
-      } else {
-        failureCount = 0;
-      }
-      logVerbose(
-        `memory flush failed (attempt ${failureCount}/${MAX_FLUSH_FAILURES}): ${truncatedError}`,
-      );
-      if (updatedEntry && failureCount >= MAX_FLUSH_FAILURES) {
-        outcome = "exhausted";
-        logVerbose(
-          `memory flush exhausted: skipping flush for this compaction cycle after ${failureCount} consecutive failures`,
-        );
-      }
-    } catch (persistError) {
-      logVerbose(`failed to persist memory flush failure metadata: ${String(persistError)}`);
-    }
-  } else {
-    logVerbose(`memory flush run failed: ${String(error)}`);
-  }
-  return { sessionEntry, outcome };
-}
 /* oxlint-disable max-lines -- TODO: split this grandfathered oversized file. */

@@ -22,6 +22,8 @@ export const MESSAGE_FIELD_LABELS: Record<string, string> = {
   "messages.ackReactionScope": "Ack Reaction Scope",
   "messages.statusReactions": "Status Reactions",
   "messages.statusReactions.enabled": "Enable Status Reactions",
+  "surfaces.*.replyCompletion": "Surface Reply Completion Policy",
+  "agents.defaults.replyCompletion": "Default Reply Completion Policy",
   "messages.inbound.debounceMs": "Inbound Message Debounce (ms)",
   "messages.inbound.byChannel": "Inbound Debounce by Channel (ms)",
 };
