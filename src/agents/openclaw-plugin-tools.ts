@@ -16,6 +16,7 @@ import type { OpenClawPluginToolDelivery } from "../plugins/tool-types.js";
 import { resolvePluginTools, resolvePluginToolsSteps } from "../plugins/tools.js";
 import type { OpenClawPluginToolContext } from "../plugins/types.js";
 import { createLazyRuntimeModule } from "../shared/lazy-runtime.js";
+import { isUserModelAuthProfileId } from "../state/user-model-account-id.js";
 import { resolveApiKeyForProfile, resolveAuthProfileOrder } from "./auth-profiles.js";
 import type { AuthProfileStore } from "./auth-profiles/types.js";
 import { bindRequesterOwnerIdentity } from "./cron-creator-authority-context.js";
@@ -43,6 +44,7 @@ type ResolveOpenClawPluginToolsOptions = OpenClawPluginToolOptions & {
   disablePluginTools?: boolean;
   clientCaps?: string[];
   authProfileStore?: AuthProfileStore;
+  requesterAuthProfileId?: string;
 };
 
 const loadMessageActionRunner = createLazyRuntimeModule(
@@ -354,6 +356,9 @@ function* resolveOpenClawPluginToolSteps(
         }
       : assertCallerCurrent,
     ownerContinuation: requesterOwner,
+    ...(isUserModelAuthProfileId(params.options?.requesterAuthProfileId?.trim() ?? "")
+      ? { personalModelAuthProfileId: params.options?.requesterAuthProfileId }
+      : {}),
     clientCaps: params.options?.clientCaps,
     toolAllowlist: params.options?.pluginToolAllowlist,
     toolDenylist: params.options?.pluginToolDenylist,

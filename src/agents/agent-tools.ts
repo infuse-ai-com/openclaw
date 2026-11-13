@@ -550,7 +550,9 @@ function* assembleOpenClawCodingTools(
       applyDelegationCapability(
         mergeAgentRingZeroTools(ringZeroTools, filtered),
         options?.delegationCapability,
+        options?.requesterAuthProfileId,
       ),
+      // prettier-ignore
       { swarmCollector: options?.swarmCollector, structuredOutputTool: swarmStructuredOutputTool },
     );
   const inheritableTools = completeTurnTools(

@@ -110,6 +110,27 @@ describe("delegation capability", () => {
     expect(applyDelegationCapability(tools, "full")).toBe(tools);
   });
 
+  it("withholds auxiliary model spending only for generated personal profiles", () => {
+    const tools = [
+      createTool("sessions_spawn"),
+      createTool("sessions_send"),
+      createTool("openclaw"),
+      createTool("llm-task"),
+      createTool("codex_session_send"),
+      createTool("message"),
+      createTool("read"),
+    ];
+    const personal =
+      "personal:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222";
+
+    expect(applyDelegationCapability(tools, "full", personal).map((tool) => tool.name)).toEqual([
+      "message",
+      "read",
+    ]);
+    expect(applyDelegationCapability(tools, "full", "personal:work")).toBe(tools);
+    expect(applyDelegationCapability(tools, "full", undefined)).toBe(tools);
+  });
+
   it("keeps status and cleanup actions while rejecting new background work", async () => {
     const cronExecute = vi.fn(async () => ({ content: [], details: {} }));
     const imageExecute = vi.fn(async () => ({ content: [], details: {} }));

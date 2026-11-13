@@ -49,6 +49,8 @@ export type OpenClawCodingToolsOptions = {
   sessionKey?: string;
   requesterThinkingLevel?: ThinkLevel;
   requesterModel?: SpawnedToolContext["requesterModel"];
+  /** Exact auth profile admitted for the requester model call; used only for spending isolation. */
+  requesterAuthProfileId?: string;
   /** Exact admitted run instance for lifecycle-bound subprocess capabilities. */
   operationalRunInstance?: OperationalRunInstanceRef;
   /** Host-prepared effective paired-node Computer Use surface. */

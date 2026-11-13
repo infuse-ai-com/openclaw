@@ -379,6 +379,25 @@ describe("runtime.llm.complete", () => {
     expect(call.preferredProfile).toBeUndefined();
   });
 
+  it("rejects plugin LLM spending inside a personal account turn", async () => {
+    const llm = createRuntimeLlm({
+      getConfig: () => cfg,
+      authority: { allowComplete: true },
+    });
+
+    await expect(
+      withPluginRuntimePluginScope(
+        {
+          pluginId: "personal-turn-plugin",
+          personalModelAuthProfileId:
+            "personal:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222",
+        },
+        () => llm.complete({ messages: [{ role: "user", content: "draft" }] }),
+      ),
+    ).rejects.toThrow("Auxiliary plugin inference is unavailable");
+    expect(hoisted.acquireSimpleCompletionModelForAgent).not.toHaveBeenCalled();
+  });
+
   it("allows host model overrides only when explicit authority allowlists the model", async () => {
     const llm = createRuntimeLlm({
       getConfig: () => cfg,

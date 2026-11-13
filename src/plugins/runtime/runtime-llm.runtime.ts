@@ -23,6 +23,7 @@ import { normalizePluginsConfig } from "../config-state.js";
 import { compileModelAllowlist, type CompiledModelAllowlist } from "../model-allowlist.js";
 import { normalizePluginPolicyId } from "../plugin-policy-id.js";
 import { getPluginRuntimeGatewayRequestScope } from "./gateway-request-scope.js";
+import { assertPersonalAccountAuxiliaryInferenceAllowed } from "./personal-account-spending.js";
 import {
   createLlmCompleteError as completionError,
   isLlmOperatorAuthorizationError,
@@ -371,6 +372,7 @@ export function createRuntimeLlm(
   const logger = options.logger ?? toRuntimeLogger(defaultLogger);
   return {
     complete: bindLlmOperatorAuthority(options.authority?.caller, async (params, source) => {
+      assertPersonalAccountAuxiliaryInferenceAllowed();
       const caller = resolveTrustedCaller(options.authority);
       if (options.authority?.allowComplete === false) {
         const reason = options.authority.denyReason ?? "capability denied";

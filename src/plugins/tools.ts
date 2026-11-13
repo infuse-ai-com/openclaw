@@ -294,6 +294,7 @@ type PluginToolResolutionParams = {
   env?: NodeJS.ProcessEnv;
   runtimeRegistry?: PluginRegistry;
   preparedRuntime?: PreparedPluginToolRuntime;
+  personalModelAuthProfileId?: string;
 };
 
 type PluginToolLoadState = NonNullable<ReturnType<typeof resolvePluginToolLoadState>>;
@@ -621,7 +622,13 @@ function* resolvePluginToolsFromRegistry(
         workspace.assertCurrent();
         factoryContext.assertInvocationCurrent?.();
       }
-      const factoryResult = factories.resolve(entry, factoryContext, declaredNames, owner.registry);
+      const factoryResult = factories.resolve(
+        entry,
+        factoryContext,
+        declaredNames,
+        owner.registry,
+        params.personalModelAuthProfileId,
+      );
       if (factoryResult.failed) {
         continue;
       }

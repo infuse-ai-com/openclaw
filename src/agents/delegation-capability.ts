@@ -1,6 +1,7 @@
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import { copyPluginToolMeta } from "../plugins/tool-metadata.js";
 import { isCompletionReportInputProvenance } from "../sessions/input-provenance.js";
+import { isUserModelAuthProfileId } from "../state/user-model-account-id.js";
 import { createRuntimeToolMatcher } from "./tool-policy-match.js";
 import { normalizeToolPolicyName } from "./tool-policy.js";
 import { AUTOMATIONS_TOOL_NAME } from "./tools/automations-tool-name.js";
@@ -95,25 +96,30 @@ function wrapReportOnlyTool(tool: AnyAgentTool, allowedActions: ReadonlySet<stri
 export function applyDelegationCapability(
   tools: AnyAgentTool[],
   capability: DelegationCapability | undefined,
+  authProfileId?: string,
 ): AnyAgentTool[] {
-  if (capability !== "report_only") {
+  const personalAccount = isUserModelAuthProfileId(authProfileId?.trim() ?? "");
+  if (capability !== "report_only" && !personalAccount) {
     return tools;
   }
   const removed: string[] = [];
   const narrowed: string[] = [];
-  const gated = tools.flatMap((tool) => {
-    const name = normalizeToolPolicyName(tool.name);
-    if (NEW_DELEGATION_TOOL_NAMES.has(name)) {
-      removed.push(name);
-      return [];
-    }
-    const allowedActions = REPORT_ONLY_TOOL_ACTIONS.get(name);
-    if (!allowedActions) {
-      return [tool];
-    }
-    narrowed.push(name);
-    return [wrapReportOnlyTool(tool, allowedActions)];
-  });
+  const gated =
+    capability === "report_only"
+      ? tools.flatMap((tool) => {
+          const name = normalizeToolPolicyName(tool.name);
+          if (NEW_DELEGATION_TOOL_NAMES.has(name)) {
+            removed.push(name);
+            return [];
+          }
+          const allowedActions = REPORT_ONLY_TOOL_ACTIONS.get(name);
+          if (!allowedActions) {
+            return [tool];
+          }
+          narrowed.push(name);
+          return [wrapReportOnlyTool(tool, allowedActions)];
+        })
+      : tools;
   if (removed.length > 0 || narrowed.length > 0) {
     // Removal is otherwise invisible: the model simply never sees the tool and
     // no error is raised. Record it so a fallback completion turn stays
@@ -123,5 +129,7 @@ export function applyDelegationCapability(
       narrowed,
     });
   }
-  return gated;
+  return personalAccount
+    ? gated.filter((tool) => !NEW_DELEGATION_TOOL_NAMES.has(normalizeToolPolicyName(tool.name)))
+    : gated;
 }

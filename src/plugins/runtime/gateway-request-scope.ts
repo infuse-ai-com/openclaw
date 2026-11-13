@@ -35,6 +35,7 @@ type PluginRuntimePluginScope = {
   pluginSource?: string;
   pluginOrigin?: PluginOrigin;
   pluginTrustedOfficialInstall?: boolean;
+  personalModelAuthProfileId?: string;
 };
 
 function runWithPluginGatewayScope<T>(
@@ -247,6 +248,9 @@ function applyPluginScope(
     scoped.pluginTrustedOfficialInstall = scope.pluginTrustedOfficialInstall;
   } else {
     delete scoped.pluginTrustedOfficialInstall;
+  }
+  if (scope.personalModelAuthProfileId !== undefined) {
+    scoped.personalModelAuthProfileId = scope.personalModelAuthProfileId;
   }
 }
 

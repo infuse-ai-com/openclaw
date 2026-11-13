@@ -42,6 +42,7 @@ type AttemptToolRunFacts = Pick<
   | "sourceReplyDeliveryMode"
   | "reactionToolFinalByDefault"
   | "taskSuggestionDeliveryMode"
+  | "authProfileId"
 >;
 
 /**
@@ -112,6 +113,7 @@ export function buildEmbeddedAttemptToolRunContext(
     requesterModel: params.model
       ? { provider: params.model.provider, model: params.model.id }
       : undefined,
+    requesterAuthProfileId: params.authProfileId,
     trigger: params.trigger,
     continuesConversation: params.continuesConversation,
     jobId: params.jobId,

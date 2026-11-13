@@ -19,6 +19,7 @@ import {
   bindGatewayContextResolver,
   getPluginRuntimeGatewayRequestScope,
 } from "../plugins/runtime/gateway-request-scope.js";
+import { assertPersonalAccountAuxiliaryInferenceAllowed } from "../plugins/runtime/personal-account-spending.js";
 import { resolvePluginSubagentCompletionRequester } from "../plugins/runtime/subagent-requester-context.js";
 import type { LlmCompleteUsage } from "../plugins/runtime/types-core.js";
 import type { PluginRuntime } from "../plugins/runtime/types.js";
@@ -206,6 +207,7 @@ export function createGatewaySubagentRuntime(
 
   const subagentRuntime: PluginRuntime["subagent"] = {
     async forkSession(request) {
+      assertPersonalAccountAuxiliaryInferenceAllowed();
       const params = { ...request };
       const scope = getPluginRuntimeGatewayRequestScope();
       const pluginId = scope?.pluginId?.trim();
@@ -345,6 +347,7 @@ export function createGatewaySubagentRuntime(
       }
     },
     async complete(request) {
+      assertPersonalAccountAuxiliaryInferenceAllowed();
       // Authorization and credential selection must use the same request across queue waits.
       const params = { ...request };
       const scope = getPluginRuntimeGatewayRequestScope();
@@ -479,6 +482,7 @@ export function createGatewaySubagentRuntime(
       }
     },
     async run(request) {
+      assertPersonalAccountAuxiliaryInferenceAllowed();
       const params = { ...request };
       const assertCurrent = params.assertCurrent;
       assertCurrent?.();
