@@ -113,6 +113,7 @@ function createAdmissionFixture() {
     promptSessionCtx: ctx,
     inboundEventKind: undefined,
     sourceReplyDeliveryMode: undefined,
+    reactionToolFinalByDefault: false,
     silentReplyPromptMode: "none",
     fullAccessState: { available: false },
     isFirstTurnInSession: false,

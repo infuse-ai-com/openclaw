@@ -12,16 +12,9 @@ import {
 import { resolveUtilityModelRefForAgent } from "../agents/utility-model.js";
 import { resolveSessionObserverDigestForLifecycle } from "../config/sessions/observer-digest.js";
 import { resolveSessionStorePathCore } from "../config/sessions/paths.js";
-import { readPreparedSessionEntryChange } from "../config/sessions/session-accessor.sqlite-entry-cache-publication-state.js";
 import { getAgentRunContext } from "../infra/agent-run-registry.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { sessionChanges } from "../sessions/session-row-changes.js";
-import {
-  prepareSessionRowPublicationScope,
-  sessionChangeAffectsStoredRow,
-} from "../sessions/session-row-facts.js";
-import { isUserModelAuthProfileId } from "../state/user-model-account-id.js";
 import {
   createSessionObserverAudience,
   createSessionObserverAudienceLifecycle,
@@ -30,7 +23,6 @@ import { createSessionObserverCompanionSnapshotReader } from "./session-observer
 import { createSessionObserverCompletion } from "./session-observer-completion.js";
 import type { SessionObserverEvent, SessionObserverService } from "./session-observer-contract.js";
 import { createSessionObserverLifecycle } from "./session-observer-lifecycle.js";
-import { createSessionObserverModelSlots } from "./session-observer-model-slots.js";
 import {
   createDormantSessionObserverRun,
   defaultCompleteModel,
@@ -39,7 +31,6 @@ import {
   defaultReadSession,
   isSameSessionObserverLifecycle,
   markSessionObserverRunSuperseded,
-  rememberSessionObserverDisabledRun,
   rememberSessionObserverDormantRun,
   rememberSessionObserverRevisionFloor,
   snapshotSessionObserverRevisionFloor,
@@ -51,6 +42,7 @@ import type {
   SessionObserverState,
 } from "./session-observer-model.js";
 import { createSessionObserverDigestPersister } from "./session-observer-persistence.js";
+import { personalAccountObserver } from "./session-observer-personal-account.js";
 import { createSessionObserverPreamblePublisher } from "./session-observer-preamble.js";
 import { createSessionObserverTerminalPublisher } from "./session-observer-terminal.js";
 import {
@@ -140,7 +132,7 @@ export function createSessionObserver(deps: SessionObserverDeps): SessionObserve
       }
     },
     finishClose: () => {
-      unsubscribeAccountChanges();
+      modelCustody.unsubscribe();
       pendingTerminalErrors.forEach((_timer, runId) => clearPendingTerminalError(runId));
       lifecycle.dispose();
       terminalRuns.clear();
@@ -242,54 +234,15 @@ export function createSessionObserver(deps: SessionObserverDeps): SessionObserve
   const retireInactiveState = (state: SessionObserverState) =>
     (work.disposed || supersededRuns.has(state.runId) ? lifecycle.dropState : suspendState)(state);
 
-  const demoteUtilityModel = (state: SessionObserverState): void => {
-    if (state.timer) {
-      clearTimeoutFn(state.timer);
-      state.timer = undefined;
-    }
-    modelSlots.invalidateRequest(state);
-    state.preparedPromise = undefined;
-    state.utilityModelRef = undefined;
-    state.consecutiveFailures = 0;
-  };
-  const modelSlots = createSessionObserverModelSlots({
+  const modelCustody = personalAccountObserver.createCustody({
     states,
+    disabledRuns,
+    clearTimeoutFn,
     maxSessions: MAX_CONCURRENT_MODEL_SESSIONS,
-    resolve: (agentId) => resolveUtilityModelRef({ cfg: deps.getConfig(), agentId }),
-    demote: demoteUtilityModel,
+    resolveUtilityModelRef: (agentId) => resolveUtilityModelRef({ cfg: deps.getConfig(), agentId }),
+    resolveStorePath,
   });
-
-  const disableModelForRun = (state: SessionObserverState) => {
-    rememberSessionObserverDisabledRun(disabledRuns, state.runId);
-    demoteUtilityModel(state);
-  };
-
-  // Worker-backed observers have no resident row projection. Committed account
-  // changes retire the same model owner used by projection-backed observers.
-  const unsubscribeAccountChanges = sessionChanges.subscribeFacts((change) => {
-    for (const state of states.values()) {
-      if (
-        !state.utilityModelRef ||
-        !sessionChangeAffectsStoredRow(change, {
-          ...prepareSessionRowPublicationScope([resolveStorePath(state.agentId)]),
-          agentId: state.agentId,
-          sessionKeys: [state.sessionKey],
-        })
-      ) {
-        continue;
-      }
-      const receipt = readPreparedSessionEntryChange(change, state.sessionKey);
-      if (
-        isUserModelAuthProfileId(
-          (receipt?.fullEntry ?? receipt?.entry)?.authProfileOverride?.trim() ?? "",
-        ) ||
-        change.factsInvalidated ||
-        (receipt && !receipt.entry)
-      ) {
-        disableModelForRun(state);
-      }
-    }
-  });
+  const { modelSlots, demote: demoteUtilityModel, disable: disableModelForRun } = modelCustody;
 
   const audienceLifecycle = createSessionObserverAudienceLifecycle({
     audience,
@@ -306,22 +259,11 @@ export function createSessionObserver(deps: SessionObserverDeps): SessionObserve
     demote: demoteUtilityModel,
   });
 
-  const modelStateIsCurrent: typeof audienceLifecycle.modelStateIsCurrent = (
-    state,
-    observedAudience,
-  ) => {
-    if (!audienceLifecycle.modelStateIsCurrent(state, observedAudience)) {
-      return false;
-    }
-    if (!deps.readSession && !deps.getSessionRowProjection) {
-      return true;
-    }
-    const session = readSession(state.sessionKey, state.agentId);
-    return (
-      isSameSessionObserverLifecycle(state, session) &&
-      !isUserModelAuthProfileId(session?.authProfileOverride?.trim() ?? "")
-    );
-  };
+  const modelStateIsCurrent = personalAccountObserver.createCurrentGuard({
+    base: audienceLifecycle.modelStateIsCurrent,
+    hasResidentSession: Boolean(deps.readSession || deps.getSessionRowProjection),
+    readSession,
+  });
 
   const requestModelDigest = createSessionObserverCompletion({
     getConfig: deps.getConfig,
@@ -630,8 +572,7 @@ export function createSessionObserver(deps: SessionObserverDeps): SessionObserve
         ) {
           return;
         }
-        if (isUserModelAuthProfileId(session.authProfileOverride?.trim() ?? "")) {
-          rememberSessionObserverDisabledRun(disabledRuns, event.runId);
+        if (personalAccountObserver.disableRun(disabledRuns, event.runId, session)) {
           admittedModelRef = undefined;
           canAdmit &&= isPreamble;
         }
@@ -787,4 +728,3 @@ export function createSessionObserver(deps: SessionObserverDeps): SessionObserve
     disposeAsync: work.disposeAsync,
   };
 }
-/* oxlint-disable max-lines -- Canary account-isolation guards crossed a legacy file threshold. */

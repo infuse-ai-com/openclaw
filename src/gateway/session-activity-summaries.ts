@@ -2,12 +2,6 @@ import { toErrorObject } from "@openclaw/normalization-core/error-coercion";
 import { truncateUtf16Safe } from "@openclaw/normalization-core/utf16-slice";
 import type { SessionActivitySummary as ActivitySummaryView } from "../../packages/gateway-protocol/src/schema/sessions-activity-summary.js";
 import { isDefinitiveRunLifecycle } from "../agents/agent-run-terminal-outcome.js";
-import { resolveModelFallbackError } from "../agents/failover-error.js";
-import { findErrorProperty } from "../agents/failover/error.js";
-import {
-  hasLongWindowRateLimitEvidence,
-  resolveRetryAfterMs,
-} from "../agents/failover/retry-evidence.js";
 import { resolveUtilityModelRefForAgent } from "../agents/utility-model.js";
 import {
   ACTIVITY_SUMMARY_FORMAT_REVISION,
@@ -40,11 +34,17 @@ import {
 } from "../sessions/session-lifecycle-events.js";
 import type { InternalSessionTranscriptUpdate } from "../sessions/transcript-events.js";
 import { runInDetachedAsyncContext } from "../shared/detached-async-context.js";
-import { isUserModelAuthProfileId } from "../state/user-model-account-id.js";
+import { hasUserModelAuthProfileId } from "../state/user-model-account-id.js";
 import {
   projectActivitySummaryEntry,
   subscribeActivitySummaryEntryReceipts,
 } from "./session-activity-summary-entry-receipts.js";
+import {
+  ActivitySummaryCancelledError,
+  activitySummaryFailureIsTransient,
+  resolveActivitySummaryCancellationState,
+  resolveActivitySummaryRetryAfterMs,
+} from "./session-activity-summary-error.js";
 import { readActivitySummarySource } from "./session-activity-summary-source.js";
 import {
   activitySummaryScope,
@@ -98,12 +98,6 @@ type Tracked = ActivitySummaryTarget & {
   windowStart: number;
   calls: number;
 };
-class ActivitySummaryCancelledError extends Error {
-  constructor() {
-    super("Activity recap lifecycle or utility model changed");
-  }
-}
-
 export type SessionActivitySummaryService = {
   ensure: (
     target: ActivitySummaryTarget,
@@ -189,7 +183,7 @@ export function createSessionActivitySummaries(deps: {
     if (!canTrack(target)) {
       return undefined;
     }
-    if (isUserModelAuthProfileId(entry?.authProfileOverride?.trim() ?? "")) {
+    if (hasUserModelAuthProfileId(entry?.authProfileOverride)) {
       const existing = states.get(activitySummaryScope(target));
       if (existing) {
         drop(existing);
@@ -268,7 +262,7 @@ export function createSessionActivitySummaries(deps: {
   const assertCurrentEntry = (state: Tracked, entry: SessionEntry | undefined) => {
     if (
       !entry ||
-      isUserModelAuthProfileId(entry.authProfileOverride?.trim() ?? "") ||
+      hasUserModelAuthProfileId(entry.authProfileOverride) ||
       entry.initializationPending ||
       readSessionListSelectionFacts(state.key, entry).isSubagent ||
       entry.sessionId !== state.sessionId ||
@@ -483,42 +477,22 @@ export function createSessionActivitySummaries(deps: {
       publish(state, partial || state.dirty ? "updating" : "current", true);
     } catch (error) {
       if (current(state)) {
-        if (error instanceof ActivitySummaryCancelledError) {
+        const cancellationState = resolveActivitySummaryCancellationState(
+          error,
+          state.entry.authProfileOverride,
+        );
+        if (cancellationState) {
           state.dirty = false;
-          publish(
-            state,
-            isUserModelAuthProfileId(state.entry.authProfileOverride?.trim() ?? "")
-              ? "unavailable"
-              : "stale",
-          );
+          publish(state, cancellationState);
           return;
         }
-        const failure = resolveModelFallbackError(error);
-        const reason = failure.kind === "failover" ? failure.error.reason : undefined;
-        const transient =
-          (reason === "overloaded" ||
-            reason === "server_error" ||
-            reason === "timeout" ||
-            reason === "rate_limit") &&
-          !findErrorProperty(error, (candidate) =>
-            hasLongWindowRateLimitEvidence(formatErrorMessage(candidate)) ? true : undefined,
-          );
+        const transient = activitySummaryFailureIsTransient(error);
         state.failures += 1;
         state.retryPending = transient && state.failures <= MAX_RETRIES;
         let delay = RETRY_MS;
         if (transient && ref) {
           const failures = (modelBackoffs.get(ref)?.failures ?? 0) + 1;
-          const retryAfter =
-            findErrorProperty(error, (candidate) => {
-              const direct =
-                candidate && typeof candidate === "object"
-                  ? Object.getOwnPropertyDescriptor(candidate, "retryAfterMs")?.value
-                  : undefined;
-              const parsed = resolveRetryAfterMs(formatErrorMessage(candidate), now(), candidate);
-              return typeof direct === "number" && direct >= 0
-                ? Math.max(direct, parsed ?? 0)
-                : parsed;
-            }) ?? 0;
+          const retryAfter = resolveActivitySummaryRetryAfterMs(error, now());
           // Long provider retry floors cannot become repeated billable attempts or overflow timers.
           state.retryPending &&= Number.isFinite(retryAfter) && retryAfter <= HOUR_MS;
           delay = Math.max(computeBackoff(RETRY_BACKOFF, failures), retryAfter);
@@ -720,4 +694,3 @@ export function createSessionActivitySummaries(deps: {
     },
   };
 }
-/* oxlint-disable max-lines -- Canary account-isolation guards crossed a legacy file threshold. */

@@ -71,9 +71,10 @@ import { emitAgentAttemptRuntimeStart } from "./attempt-callbacks.js";
 import {
   buildClaudeCliFallbackContextPrelude,
   resolveCompletionToolPolicy,
+  resolveEmbeddedHarnessOverride,
   isClaudeCliProvider,
   claudeCliSessionTranscriptHasContent,
-  resolveCommandReplyExpectation,
+  resolveCommandReplyOptions,
   resolveFallbackRetryPrompt,
   rebaseExecApprovalContinuationPromptRange,
 } from "./attempt-execution.helpers.js";
@@ -332,13 +333,12 @@ export async function runAgentAttempt(params: AgentAttemptParams) {
     config: params.cfg,
     workspaceDir: params.workspaceDir,
   });
-  const embeddedAgentHarnessOverride =
-    requestedAgentHarnessId ??
-    sessionRuntimeOverride ??
-    (agentHarnessPolicy.runtime === "openclaw" && agentHarnessPolicy.runtimeSource !== "implicit"
-      ? "openclaw"
-      : undefined);
-  const replyExpectation = resolveCommandReplyExpectation(params);
+  const embeddedAgentHarnessOverride = resolveEmbeddedHarnessOverride(
+    requestedAgentHarnessId,
+    sessionRuntimeOverride,
+    agentHarnessPolicy,
+  );
+  const replyOptions = resolveCommandReplyOptions(params);
   // Read session fields at invocation time, after admitted CLI binding recovery.
   const buildCommonRunParams = () =>
     ({
@@ -384,8 +384,7 @@ export async function runAgentAttempt(params: AgentAttemptParams) {
       extraSystemPromptTurnContext: params.opts.extraSystemPromptTurnContext,
       inputProvenance: params.opts.inputProvenance,
       skillLibraryAuthoring: params.opts.skillLibraryAuthoring,
-      sourceReplyDeliveryMode: params.opts.sourceReplyDeliveryMode,
-      reactionToolFinalByDefault: params.opts.reactionToolFinalByDefault,
+      ...replyOptions,
       taskSuggestionDeliveryMode: params.opts.taskSuggestionDeliveryMode,
       clientCaps: params.opts.clientCaps,
       gatewayUiCommandTarget: params.opts.gatewayUiCommandTarget,
@@ -402,9 +401,9 @@ export async function runAgentAttempt(params: AgentAttemptParams) {
       onContextEngineTurnCandidate: params.onContextEngineTurnCandidate,
       suppressNextUserMessagePersistence: params.suppressPromptPersistenceOnRetry === true,
       disableTools,
-      terminalReplyExpectation: replyExpectation,
       silentReplyPromptMode:
-        params.opts.silentReplyPromptMode ?? (replyExpectation === "required" ? "none" : undefined),
+        params.opts.silentReplyPromptMode ??
+        (replyOptions.terminalReplyExpectation === "required" ? "none" : undefined),
       bootstrapContextMode: params.opts.bootstrapContextMode,
       bootstrapContextRunKind: params.opts.bootstrapContextRunKind,
       bootstrapPromptWarningSignaturesSeen,
