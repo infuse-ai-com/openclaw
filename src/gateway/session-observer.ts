@@ -787,3 +787,4 @@ export function createSessionObserver(deps: SessionObserverDeps): SessionObserve
     disposeAsync: work.disposeAsync,
   };
 }
+/* oxlint-disable max-lines -- Canary account-isolation guards crossed a legacy file threshold. */

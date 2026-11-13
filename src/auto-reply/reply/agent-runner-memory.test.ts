@@ -784,9 +784,9 @@ describe("runMemoryFlushIfNeeded", () => {
   it.each(["run", "entry", "latest-store"] as const)(
     "skips personal memory inference selected by the %s owner",
     async (source) => {
-      const sessionEntry = createFlushSessionEntry({
-        ...(source === "entry" ? { authProfileOverride: PERSONAL_PROFILE_ID } : {}),
-      });
+      const sessionEntry = createFlushSessionEntry(
+        source === "entry" ? { authProfileOverride: PERSONAL_PROFILE_ID } : {},
+      );
       const sessionStore = {
         main:
           source === "latest-store"
@@ -794,9 +794,9 @@ describe("runMemoryFlushIfNeeded", () => {
             : sessionEntry,
       };
       const result = await runDefaultMemoryFlush(sessionEntry, {
-        followupRun: createTestFollowupRun({
-          ...(source === "run" ? { authProfileId: PERSONAL_PROFILE_ID } : {}),
-        }),
+        followupRun: createTestFollowupRun(
+          source === "run" ? { authProfileId: PERSONAL_PROFILE_ID } : {},
+        ),
         sessionStore,
       });
       expect(result).toEqual({ sessionEntry, outcome: "skipped" });
@@ -1068,9 +1068,9 @@ describe("runMemoryFlushIfNeeded", () => {
             ? { ...sessionEntry, authProfileOverride: PERSONAL_PROFILE_ID }
             : sessionEntry,
       };
-      const followupRun = createTestFollowupRun({
-        ...(source === "run" ? { authProfileId: PERSONAL_PROFILE_ID } : {}),
-      });
+      const followupRun = createTestFollowupRun(
+        source === "run" ? { authProfileId: PERSONAL_PROFILE_ID } : {},
+      );
       const beforeCompaction = vi.fn(
         async (entry: SessionEntry) =>
           (await runDefaultMemoryFlush(entry, { followupRun, sessionStore })).sessionEntry,
