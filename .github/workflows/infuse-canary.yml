@@ -116,22 +116,25 @@ jobs:
           candidate_sha="${candidate[1]}"
           base_sha="${candidate[2]}"
 
-          # Keep enough ancestry for the controller to prove the exact upstream
-          # base without widening checkout credentials or fetching every branch.
-          git fetch --no-tags --depth=256 origin \
-            "+refs/heads/${candidate_ref}:refs/remotes/origin/${candidate_ref}"
-          resolved_candidate_sha="$(git rev-parse "refs/remotes/origin/${candidate_ref}^{commit}")"
+          # The controller bind-mounts the candidate into a secretless container,
+          # so it needs a self-contained .git directory rather than a linked
+          # worktree whose administration directory lives outside that mount.
+          candidate_dir="$RUNNER_TEMP/infuse-canary-candidate"
+          git clone --no-tags --no-checkout --depth=256 --single-branch \
+            --branch "$candidate_ref" \
+            https://github.com/infuse-ai-com/openclaw.git \
+            "$candidate_dir"
+          resolved_candidate_sha="$(git -C "$candidate_dir" rev-parse "refs/remotes/origin/${candidate_ref}^{commit}")"
           if [[ "$resolved_candidate_sha" != "$candidate_sha" ]]; then
             echo "candidate branch head does not match its reviewed binding" >&2
             exit 1
           fi
-          if ! git cat-file -e "${base_sha}^{commit}" || \
-            [[ "$(git merge-base "$base_sha" "$resolved_candidate_sha")" != "$base_sha" ]]; then
+          if ! git -C "$candidate_dir" cat-file -e "${base_sha}^{commit}" || \
+            [[ "$(git -C "$candidate_dir" merge-base "$base_sha" "$resolved_candidate_sha")" != "$base_sha" ]]; then
             echo "candidate history does not contain its reviewed upstream base within 256 commits" >&2
             exit 1
           fi
-          candidate_dir="$RUNNER_TEMP/infuse-canary-candidate"
-          git worktree add --detach "$candidate_dir" "$resolved_candidate_sha"
+          git -C "$candidate_dir" checkout --detach "$resolved_candidate_sha"
 
           {
             echo "controller=$controller"
