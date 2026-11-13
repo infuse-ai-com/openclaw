@@ -19,6 +19,7 @@ import {
 import { findModelInCatalog } from "../../agents/model-catalog-lookup.js";
 import { recordModelFallbackStop } from "../../agents/model-fallback-stop.js";
 import { normalizeChatType } from "../../channels/chat-type.js";
+import type { CronRunInference } from "../../cron/run-inference.js";
 import { shouldPreserveUserFacingSessionStateForInputProvenance } from "../../sessions/input-provenance.js";
 import { createAgentLifecycleTerminalBackstop } from "./agent-lifecycle-terminal.js";
 import { resolveRunAuthProfile } from "./agent-runner-auth-profile.js";
@@ -53,7 +54,7 @@ export async function runCliFallbackCandidate(
   },
 ): ReturnType<typeof runCliAgentWithLifecycle> {
   const turn = params.turn;
-  params.scheduledInference?.assertCandidate(params.provider, true);
+  params.runInference?.assertCandidate(params.provider, true);
   const onPreparedBlockReply = turn.opts?.onPreparedBlockReply;
   const onNativeBlockReply: NonNullable<typeof turn.opts>["onBlockReply"] =
     turn.opts?.onBlockReply ??
@@ -200,7 +201,9 @@ export async function runCliFallbackCandidate(
             storePath: turn.storePath,
             activeSessionEntry: sessionEntry,
           });
-        const scheduledInference = params.scheduledInference;
+        const scheduledInference = turn.followupRun.run.scheduledAutomation
+          ? (params.runInference as CronRunInference | undefined)
+          : undefined;
         // The CLI owner must see explicit pins before provider scoping can discard them.
         // A recorded account runs only when this backend forwards exactly that account.
         const authProfileId = scheduledInference

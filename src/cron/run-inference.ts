@@ -1,17 +1,8 @@
-import type { RunEmbeddedAgentInternalParams } from "../agents/embedded-agent-runner/run/internal-params.js";
+import type { RunInference } from "../agents/run-inference.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { CronInferenceBinding } from "./inference-binding.js";
 
-export type CronRunInference = {
-  runParams: Pick<
-    RunEmbeddedAgentInternalParams,
-    | "authProfileId"
-    | "authProfileBinding"
-    | "allowAuthProfileFallback"
-    | "onSuccessfulAuthProfile"
-    | "authProfileIdSource"
-  >;
-  assertCandidate: (provider: string, cliExecution: boolean) => void;
+export type CronRunInference = RunInference & {
   /**
    * A CLI candidate may run only when its backend forwards exactly the recorded account,
    * selected explicitly; `resolve` is the same selector interactive CLI turns use.
@@ -22,7 +13,6 @@ export type CronRunInference = {
       authProfileIdSource: "user";
     }) => Promise<string | undefined>,
   ) => Promise<string>;
-  dispose: () => void;
 };
 
 function incompatibleCandidateError(cliExecution: boolean, cause?: unknown): Error {
