@@ -720,3 +720,4 @@ export function createSessionActivitySummaries(deps: {
     },
   };
 }
+/* oxlint-disable max-lines -- Canary account-isolation guards crossed a legacy file threshold. */

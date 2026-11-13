@@ -723,6 +723,7 @@ async function executeAgentTurnOutcome(
     throw error;
   }
 }
+/* oxlint-disable max-lines -- Canary account pinning crossed a legacy file threshold. */
 
 export async function executeAgentTurn(params: AgentTurnParams): Promise<AgentTurnExecutionResult> {
   params.opts?.onRunVerbosityResolved?.({

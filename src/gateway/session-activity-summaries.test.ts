@@ -1036,3 +1036,4 @@ describe("Activity recap lifecycle with the canonical session store", () => {
     );
   });
 });
+/* oxlint-disable max-lines -- Canary account-isolation coverage crossed a legacy file threshold. */
