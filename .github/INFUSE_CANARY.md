@@ -9,9 +9,12 @@ trigger and can run only through `workflow_dispatch` on `main`.
 
 Each canary version uses two final branches:
 
-- `canary-openclaw-vYYYY.MM.DD` is the reviewed bundle candidate.
-- `build/canary-openclaw-vYYYY.MM.DD` contains only the generated build
+- `canary-openclaw-vYYYY.M.D` is the reviewed bundle candidate.
+- `build/canary-openclaw-vYYYY.M.D` contains only the generated build
   controller for that exact candidate.
+
+Version components preserve the upstream tag spelling: both zero-padded and
+non-zero-padded month/day values are accepted, including `v2026.11.3`.
 
 The build branch must contain `ci/infuse-canary/binding.json` with schema 3 and
 `ci/infuse-canary/run-host.py`. The binding must identify:
@@ -37,7 +40,7 @@ branch and its full commit SHA:
 gh workflow run .github/workflows/infuse-canary.yml \
   --repo infuse-ai-com/openclaw \
   --ref main \
-  -f build_ref=build/canary-openclaw-vYYYY.MM.DD \
+  -f build_ref=build/canary-openclaw-vYYYY.M.D \
   -f build_sha=<40-character-build-commit>
 ```
 
