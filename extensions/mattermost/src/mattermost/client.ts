@@ -614,6 +614,7 @@ export async function createMattermostPost(
     channelId: string;
     message: string;
     rootId?: string;
+    postType?: string;
     fileIds?: string[];
     props?: Record<string, unknown>;
   },
@@ -624,6 +625,9 @@ export async function createMattermostPost(
   };
   if (params.rootId) {
     payload.root_id = params.rootId;
+  }
+  if (params.postType) {
+    payload.type = params.postType;
   }
   if (params.fileIds?.length) {
     payload.file_ids = params.fileIds;
