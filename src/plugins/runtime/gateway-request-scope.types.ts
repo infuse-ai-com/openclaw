@@ -54,6 +54,8 @@ export type PluginRuntimeGatewayRequestScope = {
   pluginSource?: string;
   pluginOrigin?: PluginOrigin;
   pluginTrustedOfficialInstall?: boolean;
+  /** Personal account bound to the parent turn; auxiliary plugin inference must fail closed. */
+  personalModelAuthProfileId?: string;
   gatewayMethodDispatchAllowed?: boolean;
   pluginRegistry?: PluginRegistry;
   declaredProviderOwners?: DeclaredProviderOwnerIndex;

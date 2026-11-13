@@ -28,6 +28,7 @@ const log = createSubsystemLogger("plugins/tools");
 const PLUGIN_TOOL_FACTORY_WARN_TOTAL_MS = 5_000;
 const PLUGIN_TOOL_FACTORY_WARN_FACTORY_MS = 1_000;
 const PLUGIN_TOOL_FACTORY_SUMMARY_LIMIT = 20;
+const personalAccountProfiles = new WeakMap<object, string>();
 
 function formatPluginToolFactoryTiming(timing: PluginToolFactoryTiming): string {
   const names = timing.names.length > 0 ? timing.names.join("|") : "-";
@@ -44,11 +45,13 @@ function runWithPluginToolScope<T>(
   entry: PluginToolRegistration,
   registry: PluginRegistry,
   run: () => T,
+  personalModelAuthProfileId?: string,
 ): T {
   return withPluginRuntimePluginScope(
     {
       pluginId: entry.pluginId,
       pluginSource: entry.source,
+      personalModelAuthProfileId,
     },
     run,
     registry,
@@ -70,7 +73,7 @@ export function bindPluginToolCallbacks(
       throw new Error(`Plugin "${entry.pluginId}" tool runtime is no longer active.`);
     }
     assertInvocationCurrent?.();
-    const result = runWithPluginToolScope(entry, registry, run);
+    const result = runWithPluginToolScope(entry, registry, run, personalAccountProfiles.get(tool));
     if (assertInvocationCurrent && isPromiseLike(result)) {
       return Promise.resolve(result).then((value) => {
         assertInvocationCurrent();
@@ -186,12 +189,25 @@ export function createPluginToolFactoryResolver(logError: (message: string) => v
       ctx: OpenClawPluginToolContext,
       declaredNames: string[],
       registry: PluginRegistry,
+      personalModelAuthProfileId?: string,
     ) {
       let resolved: ReturnType<PluginToolRegistration["factory"]> = null;
       let failed = false;
       const factoryStartedAt = Date.now();
       try {
-        resolved = runWithPluginToolScope(entry, registry, () => entry.factory(ctx));
+        resolved = runWithPluginToolScope(
+          entry,
+          registry,
+          () => entry.factory(ctx),
+          personalModelAuthProfileId,
+        );
+        if (personalModelAuthProfileId && resolved) {
+          for (const tool of Array.isArray(resolved) ? resolved : [resolved]) {
+            if ((typeof tool === "object" && tool !== null) || typeof tool === "function") {
+              personalAccountProfiles.set(tool, personalModelAuthProfileId);
+            }
+          }
+        }
       } catch (err) {
         failed = true;
         // Only the config producer can confirm its diagnostic was emitted;

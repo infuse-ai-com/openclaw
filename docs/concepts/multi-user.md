@@ -65,7 +65,7 @@ Creator source follows scheduled jobs and inherited creation policies. A require
 
 ## Per-person model accounts
 
-Each person can sign in to a model account for their Gateway profile. New sessions they start prefer that account instead of the Gateway default. Available providers and sign-in methods come from the Gateway's provider plugins. Selecting an account does not guarantee that every turn bills that account.
+Each person can sign in to a model account for their Gateway profile. New sessions they start prefer that account instead of the Gateway default. Available providers and sign-in methods come from the Gateway's provider plugins. The admitted parent reply uses that account; auxiliary model calls and delegated inference are unavailable for personal-account turns rather than falling back to shared credentials.
 
 There are two sign-ins: the Gateway identifies **you**, then the provider authorizes **your model account**. CLI and web UI use the same personal account store on the selected Gateway. A shared server does not turn personal sign-in into shared credentials. System/agent credentials are a separate scope, managed through `models auth` on the machine running that OpenClaw installation.
 
@@ -100,7 +100,7 @@ The page reports the exact sign-in operation as pending, connected, cancelled, e
 
 Open the model menu in **New session** or an existing chat. Expand the **Account** category to choose one of your saved accounts for the selected provider. The account picker remains available when **Automatic** has no eligible models. In New session, choosing an account previews eligible models before your first message. The selection applies to the session you create and can also be used for [draft-title preparation](/web/control-ui/sessions-and-sidebar#new-session-names) before you press Start. It does not change your new-chat default or saved model preference. Changing accounts discards the old title suggestion. In an existing chat, it changes that chat's selection.
 
-The account control shows a person-level label for someone else's personal account, not its private email, provider account label, or account id. Ordinary personal-account chat replies stop when that account cannot be used, rather than charging a shared fallback. The label describes the selection, not a billing receipt for tools or delegated work.
+The account control shows a person-level label for someone else's personal account, not its private email, provider account label, or account id. Ordinary personal-account chat replies stop when that account cannot be used, rather than charging a shared fallback. Model-calling tools, delegated sessions, and plugin-owned auxiliary inference are unavailable in that turn; other non-model tools retain their normal service contracts.
 
 Chat status and model listings identify a selected personal credential as **personal account**, without exposing its private label, email, or account id.
 
@@ -124,7 +124,7 @@ When a linked person creates a session, OpenClaw captures their default as that 
 
 Ordinary chat replies keep that personal account through queued work and retries. Account failure stops the reply without switching to shared credentials, a different provider, or a native CLI login. Changing the account while a reply is running requires a new message. Shared-account selections keep their existing fallback behavior.
 
-Personal-account compaction and model-backed memory flushing are currently unavailable. Sessions with a saved personal account also skip optional model-generated titles, progress narration, observer digests, and Activity recaps. Personal chats keep non-model names and native agent progress. Session-owned auxiliary work with one-shot account overrides, model-calling tools, and delegated child runs still need separate account-binding qualification; a personal chat selection alone is not a complete personal-only spending guarantee.
+Personal-account compaction and model-backed memory flushing are currently unavailable. Sessions with a saved personal account also skip optional model-generated titles, progress narration, observer digests, and Activity recaps. Personal chats keep non-model names and native agent progress. Model-calling and delegated-session tools are withheld from personal turns, and plugin LLM/subagent inference fails closed before selecting credentials. Use a separate shared-account session for auxiliary model work.
 
 **Use Gateway defaults for new chats**, CLI `clear-default`, and API `users.unlinkAuthProfile` affect future sessions only. Changing a default does not repin existing chats, including unpinned chats using shared credentials. Adopting or forking an existing chat does not apply the current participant's default, and changing providers does not silently select their personal account. Expand the **Account** category in the model menu to make that explicit choice. Clearing a default neither deletes the saved credential nor revokes a provider token. Revoke it with the provider if existing sessions must stop using it. Links and existing session credentials follow verified profile merges, but an explicit unlink on the surviving profile is not reversed by a merge.
 

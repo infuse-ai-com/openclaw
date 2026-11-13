@@ -131,6 +131,21 @@ afterEach(() => {
 });
 
 describe("plugin background completions", () => {
+  it("rejects plugin child inference inside a personal account turn", async () => {
+    const runtime = createRuntime();
+    await expect(
+      withPluginRuntimePluginScope(
+        {
+          pluginId: PLUGIN_ID,
+          personalModelAuthProfileId:
+            "personal:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222",
+        },
+        () => runtime.complete({ agentId: "research", message: "Review these notes" }),
+      ),
+    ).rejects.toThrow("Auxiliary plugin inference is unavailable");
+    expect(isolated).not.toHaveBeenCalled();
+  });
+
   it("isolates completion from its caller transcript writer", async () => {
     isolated.mockImplementationOnce(async (params) => {
       expect(getOwnedSessionTranscriptWriterFence()).toBeUndefined();

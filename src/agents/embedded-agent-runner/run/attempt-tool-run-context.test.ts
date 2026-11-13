@@ -19,6 +19,8 @@ describe("buildEmbeddedAttemptToolRunContext", () => {
       provider: "custom",
       modelId: "alias",
       model: { provider: "custom", id: "resolved-model", headers: { "x-private": "fixture" } },
+      authProfileId:
+        "personal:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222",
     };
     const context = buildEmbeddedAttemptToolRunContext(input);
     input.model.id = "next-model";
@@ -37,6 +39,7 @@ describe("buildEmbeddedAttemptToolRunContext", () => {
       expect(context).not.toHaveProperty(ownedField);
     }
     expect(context.requesterModel).toEqual({ provider: "custom", model: "resolved-model" });
+    expect(context.requesterAuthProfileId).toBe(input.authProfileId);
   });
 
   it("carries runtime toolsAllow into coding tool construction", () => {

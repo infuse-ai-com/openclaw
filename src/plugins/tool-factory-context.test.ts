@@ -8,9 +8,13 @@ import {
 import { createPluginRuntimeMock } from "../plugin-sdk/test-helpers/plugin-runtime-mock.js";
 import { markPluginRegistryRetired } from "./registry-lifecycle.js";
 import { createTestPluginRegistry } from "./registry-runtime.test-helpers.js";
+import { getPluginRuntimeGatewayRequestScope } from "./runtime/gateway-request-scope.js";
 import { createPluginRecord } from "./status.test-helpers.js";
 import { createPluginToolFactoryContext } from "./tool-factory-context.js";
-import { bindPluginToolCallbacks } from "./tool-factory-runtime.js";
+import {
+  bindPluginToolCallbacks,
+  createPluginToolFactoryResolver,
+} from "./tool-factory-runtime.js";
 import type { OpenClawPluginToolContext, OpenClawPluginToolFactory } from "./tool-types.js";
 
 function register(factory: OpenClawPluginToolFactory | OpenClawPluginToolFactory<2>) {
@@ -119,6 +123,33 @@ describe("plugin tool declaration membership", () => {
     ]);
     expect(readFactory).not.toHaveBeenCalled();
     expect(readNames).toHaveBeenCalledOnce();
+  });
+});
+
+describe("plugin tool personal-account spending scope", () => {
+  it("carries the parent personal profile through retained tool execution", async () => {
+    const personalProfile =
+      "personal:11111111-1111-4111-8111-111111111111:22222222-2222-4222-8222-222222222222";
+    const observed: Array<string | undefined> = [];
+    const { entry, registry } = register(() => ({
+      name: "probe",
+      label: "Probe",
+      description: "Observe plugin scope",
+      parameters: { type: "object", properties: {} },
+      async execute() {
+        observed.push(getPluginRuntimeGatewayRequestScope()?.personalModelAuthProfileId);
+        return { content: [], details: {} };
+      },
+    }));
+    const resolver = createPluginToolFactoryResolver(() => {});
+    const resolved = resolver.resolve(entry, {}, ["probe"], registry, personalProfile).resolved;
+    if (!resolved || Array.isArray(resolved)) {
+      throw new Error("expected one resolved probe");
+    }
+    const tool = bindPluginToolCallbacks(entry, registry, resolved);
+
+    await tool.execute("probe", {});
+    expect(observed).toEqual([personalProfile]);
   });
 });
 
