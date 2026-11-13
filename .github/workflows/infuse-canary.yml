@@ -89,6 +89,7 @@ jobs:
 
           candidate_branch = value.get("candidateBranch")
           candidate_commit = value.get("candidateCommit")
+          base_commit = value.get("baseCommit")
           branch_match = re.fullmatch(
               r"canary-openclaw-v(20[0-9]{2}\.(?:0?[1-9]|1[0-2])\.(?:0?[1-9]|[12][0-9]|3[01]))",
               candidate_branch if isinstance(candidate_branch, str) else "",
@@ -97,25 +98,36 @@ jobs:
               raise SystemExit("binding candidate branch is invalid")
           if not isinstance(candidate_commit, str) or re.fullmatch(r"[0-9a-f]{40}", candidate_commit) is None:
               raise SystemExit("binding candidate commit is invalid")
+          if not isinstance(base_commit, str) or re.fullmatch(r"[0-9a-f]{40}", base_commit) is None:
+              raise SystemExit("binding base commit is invalid")
           if build_ref.removeprefix("build/canary-openclaw-v") != branch_match.group(1):
               raise SystemExit("build and candidate versions differ")
 
           print(candidate_branch)
           print(candidate_commit)
+          print(base_commit)
           PY
           )
-          if (( ${#candidate[@]} != 2 )); then
-            echo "candidate binding did not produce an exact branch and commit" >&2
+          if (( ${#candidate[@]} != 3 )); then
+            echo "candidate binding did not produce an exact branch, candidate commit, and base commit" >&2
             exit 1
           fi
           candidate_ref="${candidate[0]}"
           candidate_sha="${candidate[1]}"
+          base_sha="${candidate[2]}"
 
-          git fetch --no-tags --depth=1 origin \
+          # Keep enough ancestry for the controller to prove the exact upstream
+          # base without widening checkout credentials or fetching every branch.
+          git fetch --no-tags --depth=256 origin \
             "+refs/heads/${candidate_ref}:refs/remotes/origin/${candidate_ref}"
           resolved_candidate_sha="$(git rev-parse "refs/remotes/origin/${candidate_ref}^{commit}")"
           if [[ "$resolved_candidate_sha" != "$candidate_sha" ]]; then
             echo "candidate branch head does not match its reviewed binding" >&2
+            exit 1
+          fi
+          if ! git cat-file -e "${base_sha}^{commit}" || \
+            [[ "$(git merge-base "$base_sha" "$resolved_candidate_sha")" != "$base_sha" ]]; then
+            echo "candidate history does not contain its reviewed upstream base within 256 commits" >&2
             exit 1
           fi
           candidate_dir="$RUNNER_TEMP/infuse-canary-candidate"
