@@ -49,7 +49,6 @@ import {
   chunkTextForOutbound,
   sanitizeAssistantVisibleText,
 } from "openclaw/plugin-sdk/text-chunking";
-import { textResult } from "openclaw/plugin-sdk/tool-results";
 import { mattermostApprovalAuth } from "./approval-auth.js";
 import { normalizeMattermostAllowEntry as normalizeAllowEntry } from "./channel-config-shared.js";
 import {
@@ -69,6 +68,7 @@ import {
 } from "./mattermost/accounts.js";
 import { normalizeMattermostEmojiName } from "./mattermost/emoji.js";
 import { mattermostIngressIdentity } from "./mattermost/ingress-identity.js";
+import { buildMattermostReactionResult } from "./mattermost/reaction-result.js";
 import {
   looksLikeMattermostTargetId,
   normalizeMattermostMessagingTarget,
@@ -432,14 +432,7 @@ const mattermostMessageActions: ChannelMessageActionAdapter = {
       throw new Error(result.error);
     }
 
-    return textResult(
-      remove
-        ? `Removed reaction :${emojiName}: from ${postId}`
-        : `Reacted with :${emojiName}: on ${postId}`,
-      remove
-        ? { ok: true, changed: true, removed: emojiName }
-        : { ok: true, changed: true, added: emojiName },
-    );
+    return buildMattermostReactionResult({ remove, emojiName, postId });
   },
 };
 
