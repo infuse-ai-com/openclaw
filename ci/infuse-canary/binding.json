@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 3,
+  "repository": "infuse-ai-com/openclaw",
+  "bootstrapBranch": "build/canary-openclaw-v2026.11.3-r4",
+  "candidateBranch": "canary-openclaw-v2026.11.3",
+  "candidateCommit": "e7d74d56a583e7596977058e7f73c6dc7c959810",
+  "baseCommit": "847611dcaa3bf0e2783335f961dd1fd0580e4d9f",
+  "sourceSha256": "f532f2a27640a6ef473ea901a60d80acba827632379b24cd1b29c4b033e7d52a",
+  "sourcePaths": 56695,
+  "sourceBytes": 683497337,
+  "pnpmLockSha256": "cac4e3810242167d941d14b6befd63959ca76bd10289437c33caa5366eeb383c",
+  "buildTimestamp": "2026-11-14T12:48:55.522Z",
+  "version": "2026.11.3",
+  "plugins": [
+    "mattermost",
+    "codex",
+    "acpx",
+    "diagnostics-otel"
+  ],
+  "nodeImage": "docker.io/library/node:24.22.1-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a",
+  "nodeVersion": "24.22.1",
+  "pnpmVersion": "12.15.0",
+  "harnessProfile": "v2026.11.3",
+  "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+  "compilerGraphs": 36,
+  "hostedCpus": 8,
+  "hostedMemoryGiB": 23,
+  "runnerLabel": "blacksmith-8vcpu-ubuntu-2404",
+  "workflowId": 0,
+  "buildAttempt": 4
+}
