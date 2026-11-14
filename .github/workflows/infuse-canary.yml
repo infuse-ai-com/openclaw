@@ -3,27 +3,44 @@ name: Infuse canary build
 on:
   workflow_dispatch:
     inputs:
+      operation:
+        description: Manual canary operation
+        required: true
+        default: build
+        type: choice
+        options:
+          - build
+          - phase5
       build_ref:
         description: Exact build/canary-openclaw-vYYYY.M.D[-rN] branch containing the reviewed controller
-        required: true
+        required: false
         type: string
       build_sha:
         description: Exact 40-character commit at the head of build_ref
-        required: true
+        required: false
+        type: string
+      qualification_ref:
+        description: Exact qualify/canary-openclaw-vYYYY.M.D-rN branch containing the reviewed Phase 5 controller
+        required: false
+        type: string
+      qualification_sha:
+        description: Exact 40-character commit at the head of qualification_ref
+        required: false
         type: string
 
-run-name: Infuse canary ${{ inputs.build_ref }} @ ${{ inputs.build_sha }}
+run-name: Infuse canary ${{ inputs.operation }} ${{ inputs.build_ref }}${{ inputs.qualification_ref }} @ ${{ inputs.build_sha }}${{ inputs.qualification_sha }}
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
-  group: infuse-canary-${{ inputs.build_sha }}
+  group: infuse-canary-${{ inputs.operation }}-${{ inputs.build_sha }}-${{ inputs.qualification_sha }}
   cancel-in-progress: false
 
 jobs:
   build:
-    if: github.repository == 'infuse-ai-com/openclaw' && github.ref == 'refs/heads/main'
+    if: inputs.operation == 'build' && github.repository == 'infuse-ai-com/openclaw' && github.ref == 'refs/heads/main'
     runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 720
     env:
@@ -169,6 +186,146 @@ jobs:
         with:
           name: infuse-canary-${{ inputs.build_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: canary-artifacts/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  phase5:
+    if: inputs.operation == 'phase5' && github.repository == 'infuse-ai-com/openclaw' && github.ref == 'refs/heads/main'
+    runs-on: blacksmith-8vcpu-ubuntu-2404
+    timeout-minutes: 720
+    env:
+      INFUSE_CANARY_QUALIFICATION_REF: ${{ inputs.qualification_ref }}
+      INFUSE_CANARY_QUALIFICATION_SHA: ${{ inputs.qualification_sha }}
+    steps:
+      - name: Checkout trusted dispatcher
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Resolve exact qualification controller
+        id: resolve-phase5
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          branch_pattern='^qualify/canary-openclaw-v20[0-9]{2}\.(0?[1-9]|1[0-2])\.(0?[1-9]|[12][0-9]|3[01])-r([1-9]|[1-9][0-9]+)$'
+          if [[ ! "$INFUSE_CANARY_QUALIFICATION_REF" =~ $branch_pattern ]]; then
+            echo "qualification_ref must be a versioned immutable qualification controller branch" >&2
+            exit 1
+          fi
+          if [[ ! "$INFUSE_CANARY_QUALIFICATION_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "qualification_sha must be a lowercase 40-character commit SHA" >&2
+            exit 1
+          fi
+
+          controller_dir="$RUNNER_TEMP/infuse-canary-phase5-controller"
+          git fetch --no-tags --depth=1 origin \
+            "+refs/heads/${INFUSE_CANARY_QUALIFICATION_REF}:refs/remotes/origin/${INFUSE_CANARY_QUALIFICATION_REF}"
+          resolved_sha="$(git rev-parse "refs/remotes/origin/${INFUSE_CANARY_QUALIFICATION_REF}^{commit}")"
+          if [[ "$resolved_sha" != "$INFUSE_CANARY_QUALIFICATION_SHA" ]]; then
+            echo "qualification_ref head does not match qualification_sha" >&2
+            exit 1
+          fi
+          git worktree add --detach "$controller_dir" "$resolved_sha"
+
+          version="${INFUSE_CANARY_QUALIFICATION_REF#qualify/canary-openclaw-v}"
+          version="${version%-r*}"
+          controller_root="$controller_dir/ci/infuse-canary/phase5-v${version}"
+          execution="$controller_root/execution.json"
+          runner="$controller_root/run-phase5.py"
+          test -f "$execution"
+          test -f "$runner"
+
+          mapfile -t binding < <(
+            /usr/bin/python3 -I - "$execution" "$version" <<'PY'
+          import json
+          import pathlib
+          import re
+          import sys
+
+          execution = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
+          version = sys.argv[2]
+          if execution.get("schema") != 1:
+              raise SystemExit("unsupported Phase 5 execution schema")
+          if execution.get("repository") != "infuse-ai-com/openclaw":
+              raise SystemExit("Phase 5 repository mismatch")
+          if execution.get("runnerLabel") != "blacksmith-8vcpu-ubuntu-2404":
+              raise SystemExit("Phase 5 must select the approved 8-vCPU/32-GB Blacksmith runner")
+          if execution.get("candidateId") != f"v{version}-infuse-{execution.get('sourceCommit', '')[:10]}":
+              raise SystemExit("Phase 5 candidate identity mismatch")
+          if re.fullmatch(r"[0-9a-f]{40}", execution.get("sourceCommit", "")) is None:
+              raise SystemExit("Phase 5 source commit is invalid")
+          hosted = execution.get("hostedArtifact")
+          if not isinstance(hosted, dict) or hosted.get("runAttempt") != 1:
+              raise SystemExit("Phase 5 hosted artifact binding is invalid")
+          if not isinstance(hosted.get("runId"), int) or hosted["runId"] <= 0:
+              raise SystemExit("Phase 5 hosted run ID is invalid")
+          if not isinstance(hosted.get("artifactId"), int) or hosted["artifactId"] <= 0:
+              raise SystemExit("Phase 5 hosted artifact ID is invalid")
+          if not isinstance(hosted.get("name"), str) or not hosted["name"]:
+              raise SystemExit("Phase 5 hosted artifact name is invalid")
+          print(hosted["runId"])
+          print(hosted["artifactId"])
+          print(hosted["name"])
+          PY
+          )
+          if (( ${#binding[@]} != 3 )); then
+            echo "qualification binding did not produce an exact run, artifact ID, and artifact name" >&2
+            exit 1
+          fi
+          {
+            echo "controller_root=$controller_root"
+            echo "runner=$runner"
+            echo "run_id=${binding[0]}"
+            echo "artifact_id=${binding[1]}"
+            echo "artifact_name=${binding[2]}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download exact hosted package artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          github-token: ${{ github.token }}
+          repository: infuse-ai-com/openclaw
+          run-id: ${{ steps.resolve-phase5.outputs.run_id }}
+          name: ${{ steps.resolve-phase5.outputs.artifact_name }}
+          path: ${{ runner.temp }}/infuse-canary-hosted-artifact
+
+      - name: Verify downloaded artifact identity
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_ARTIFACT_ID: ${{ steps.resolve-phase5.outputs.artifact_id }}
+          EXPECTED_ARTIFACT_NAME: ${{ steps.resolve-phase5.outputs.artifact_name }}
+          EXPECTED_RUN_ID: ${{ steps.resolve-phase5.outputs.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          metadata="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${EXPECTED_ARTIFACT_ID}")"
+          actual_name="$(jq -r '.name' <<<"$metadata")"
+          actual_run="$(jq -r '.workflow_run.id' <<<"$metadata")"
+          expired="$(jq -r '.expired' <<<"$metadata")"
+          if [[ "$actual_name" != "$EXPECTED_ARTIFACT_NAME" || "$actual_run" != "$EXPECTED_RUN_ID" || "$expired" != "false" ]]; then
+            echo "downloaded hosted artifact identity differs from the reviewed binding" >&2
+            exit 1
+          fi
+
+      - name: Execute exact Phase 5 lanes
+        shell: bash
+        run: |
+          set -euo pipefail
+          /usr/bin/python3 -I "${{ steps.resolve-phase5.outputs.runner }}" \
+            --artifact-root "$RUNNER_TEMP/infuse-canary-hosted-artifact" \
+            --controller-sha "$INFUSE_CANARY_QUALIFICATION_SHA" \
+            --output "$GITHUB_WORKSPACE/phase5-output"
+
+      - name: Retain temporary sanitized Phase 5 evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: infuse-canary-phase5-${{ inputs.qualification_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: phase5-output/
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
