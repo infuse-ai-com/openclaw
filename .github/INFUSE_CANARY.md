@@ -22,7 +22,7 @@ The build branch must contain `ci/infuse-canary/binding.json` with schema 3 and
 - repository `infuse-ai-com/openclaw`;
 - the exact build and candidate branches;
 - the exact 40-character candidate commit;
-- runner label `blacksmith-8vcpu-ubuntu-2404`.
+- runner label `blacksmith-16vcpu-ubuntu-2404`.
 
 The dispatcher rejects a moving or mismatched build/candidate branch before any
 candidate code runs. The Blacksmith job receives a read-only `GITHUB_TOKEN`,
