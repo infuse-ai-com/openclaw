@@ -66,7 +66,7 @@ def hydrate_packages(artifact_root: Path, plan_root: Path) -> None:
     require(isinstance(plan, dict) and isinstance(plan.get("packages"), list), "invalid Phase 5 plan package closure")
     packages = plan_root / "packages"
     require(not packages.exists(), "Phase 5 plan packages already exist")
-    packages.mkdir(mode=0o700)
+    packages.mkdir(mode=0o755)
     expected = {item["file"]: item["sha256"] for item in plan["packages"]}
     found = [path for path in artifact_root.rglob("*.tgz") if path.is_file()]
     require({path.name for path in found} == set(expected) and len(found) == len(expected), "hosted artifact package closure differs")
@@ -87,6 +87,17 @@ def docker_preflight(images: list[str]) -> dict[str, object]:
     return {"cpus": info["NCPU"], "memoryBytes": info["MemTotal"], "architecture": info.get("Architecture")}
 
 
+def fixture_mount_preflight(work: Path, node_image: str) -> None:
+    for repository in ("studio", "swarm"):
+        fixture = work / repository / "phase5-fixtures/v2026.11.3"
+        run([
+            "docker", "run", "--rm", "--pull", "never", "--platform", "linux/amd64",
+            "--network", "none", "--user", "1000:1000", "--read-only", "--cap-drop", "ALL",
+            "--security-opt", "no-new-privileges", "--mount", f"type=bind,src={fixture},dst=/fixture,readonly",
+            node_image, "sh", "-c", "test -r /fixture/proxy.mjs && test -r /fixture/run_lane.py",
+        ], timeout=120)
+
+
 def write_json(path: Path, value: object) -> None:
     temporary = path.with_suffix(path.suffix + ".tmp")
     temporary.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -105,13 +116,13 @@ def main() -> int:
     require(len(args.controller_sha) == 40 and all(character in "0123456789abcdef" for character in args.controller_sha), "invalid qualification controller SHA")
     output = Path(args.output).resolve()
     require(not output.exists(), "output already exists")
-    output.mkdir(parents=True, mode=0o700)
+    output.mkdir(parents=True, mode=0o755)
     controller_logs = output / "controller-logs"
     controller_logs.mkdir(mode=0o700)
     evidence_root = output / "evidence"
     evidence_root.mkdir(mode=0o700)
     work = output / "work"
-    work.mkdir(mode=0o700)
+    work.mkdir(mode=0o755)
 
     config = read_json(ROOT / "execution.json")
     require(isinstance(config, dict) and config.get("schema") == 1, "unsupported execution config")
@@ -129,6 +140,7 @@ def main() -> int:
     shutil.copytree(ROOT / "plan", plan_root)
     hydrate_packages(artifact_root, plan_root)
     host = docker_preflight(config["images"])
+    fixture_mount_preflight(work, config["images"][0])
 
     adapter = work / "builder/phase5-adapters/run-adapter.py"
     manifest = ROOT / "manifest.json"
