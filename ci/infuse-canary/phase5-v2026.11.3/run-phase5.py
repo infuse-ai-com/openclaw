@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import stat
 import subprocess
 import sys
 import tarfile
@@ -59,6 +60,15 @@ def extract(archive: Path, destination: Path) -> None:
 def verify_repository(path: Path, commit: str) -> None:
     require(run(["git", "-C", str(path), "rev-parse", "HEAD"], timeout=30).stdout.strip() == commit, "fixture repository commit differs")
     require(not run(["git", "-C", str(path), "status", "--porcelain", "--untracked-files=all"], timeout=60).stdout.strip(), "fixture repository is dirty")
+
+
+def expose_fixture(repository: Path) -> None:
+    fixture = repository / "phase5-fixtures/v2026.11.3"
+    for directory in (repository, repository / "phase5-fixtures", fixture):
+        directory.chmod(stat.S_IMODE(directory.stat().st_mode) | 0o055)
+    for path in fixture.rglob("*"):
+        permission = 0o055 if path.is_dir() else 0o044
+        path.chmod(stat.S_IMODE(path.stat().st_mode) | permission)
 
 
 def hydrate_packages(artifact_root: Path, plan_root: Path) -> None:
@@ -135,6 +145,8 @@ def main() -> int:
     extract(ROOT / "inputs/swarm-fixture.tgz", work)
     for name, commit in config["repositories"].items():
         verify_repository(work / name, commit)
+    expose_fixture(work / "studio")
+    expose_fixture(work / "swarm")
 
     plan_root = work / "plan"
     shutil.copytree(ROOT / "plan", plan_root)
