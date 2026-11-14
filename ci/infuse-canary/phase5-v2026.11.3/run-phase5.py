@@ -180,6 +180,7 @@ def main() -> int:
         "status": "passed" if passed else "failed",
         "candidateId": config["candidateId"],
         "sourceCommit": config["sourceCommit"],
+        "qualificationAttempt": config["qualificationAttempt"],
         "qualificationControllerCommit": args.controller_sha,
         "phase5PlanSha256": config["files"]["plan/phase5-plan.json"],
         "hostedArtifact": config["hostedArtifact"],
