@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "candidate-contract.json",
+      "bytes": 482,
+      "sha256": "cfedcf2152b500392de7e8223dfe93d4ac34d42dc5bce328971dce078279972b"
+    },
+    {
+      "path": "cleanup.py",
+      "bytes": 3516,
+      "sha256": "4ba44ceafb6bb6a1483ffcd58a60ff78427599e315c1e0e8fe6aea1deecfc725"
+    },
+    {
+      "path": "contracts/amd64.json",
+      "bytes": 374,
+      "sha256": "505a02f807e5d9e7ceccb7ad3cf59777b0fac5e699fc217d73596be0877b1d70"
+    },
+    {
+      "path": "contracts/local-image.json",
+      "bytes": 384,
+      "sha256": "2cdc3426eb4b80e39a8768b46b1326a07a4da3f43fba85ffa3611e58e95f2356"
+    },
+    {
+      "path": "image-probe.mjs",
+      "bytes": 1643,
+      "sha256": "73faff24f708682ae60c4b2421a5a2a071526fd9d5e96a484beb5e9eb5997065"
+    },
+    {
+      "path": "local-image.Dockerfile",
+      "bytes": 280,
+      "sha256": "b5450ac52ad9bdb192d9604466c95baa2d3da6f2343c1852762a33de56b8baa3"
+    },
+    {
+      "path": "proxy.mjs",
+      "bytes": 2514,
+      "sha256": "ec8ee9b010331d921e7b78809f2d099c9706adbdbca30f6ef4a8a85875c59143"
+    },
+    {
+      "path": "run-amd64.mjs",
+      "bytes": 6335,
+      "sha256": "445cece113a653c161d7ebbd1f9ae95f9eb809f84df1d4041f7ae6cb847c12fc"
+    },
+    {
+      "path": "run_lane.py",
+      "bytes": 13498,
+      "sha256": "9a7850c1bf293c6be9c81742e69e7ed1de9c3e8ed220b3656134a939353e57e3"
+    }
+  ]
+}

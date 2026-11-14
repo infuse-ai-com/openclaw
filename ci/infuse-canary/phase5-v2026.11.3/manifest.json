@@ -1,0 +1,64 @@
+{
+  "schema": 3,
+  "candidateId": "v2026.11.3-infuse-e7d74d56a5",
+  "source": {
+    "repository": "infuse-ai-com/openclaw",
+    "upstreamTag": "v2026.11.3",
+    "upstreamCommit": "847611dcaa3bf0e2783335f961dd1fd0580e4d9f",
+    "branch": "canary-openclaw-v2026.11.3",
+    "commit": "e7d74d56a583e7596977058e7f73c6dc7c959810",
+    "snapshot": {
+      "sha256": "f532f2a27640a6ef473ea901a60d80acba827632379b24cd1b29c4b033e7d52a",
+      "paths": 56695,
+      "bytes": 683497337
+    },
+    "lockSha256": "cac4e3810242167d941d14b6befd63959ca76bd10289437c33caa5366eeb383c"
+  },
+  "build": {
+    "version": "2026.11.3",
+    "timestamp": "2026-11-14T12:48:55.522Z",
+    "nodeImage": "docker.io/library/node:24.22.1-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a",
+    "nodeVersion": "24.22.1",
+    "pnpmVersion": "12.15.0",
+    "plugins": [
+      "mattermost",
+      "codex",
+      "acpx",
+      "diagnostics-otel"
+    ],
+    "hostedCpus": 8,
+    "hostedMemoryGiB": 23,
+    "nativeCpus": 4,
+    "nativeMemoryGiB": 6,
+    "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "compilerGraphs": 36
+  },
+  "ci": {
+    "branch": "build/canary-openclaw-v2026.11.3-r4",
+    "commit": "4e05299090f4646158f7b276c4c4711df0163ccd",
+    "workflowId": 417706371,
+    "runId": 43596687240,
+    "runAttempt": 1,
+    "buildAttempt": 4
+  },
+  "harnessLockSha256": "65f23c27f7ea4fa43769ee0199a85aa134615da0b3aa19c5c69638fffc237198",
+  "release": {
+    "tag": "canary-v2026.11.3-infuse-bundle-e7d74d56a5-r1",
+    "title": "2026.11.3 Infuse custom canary (e7d74d56a5)",
+    "prerelease": true,
+    "markLatest": false,
+    "id": 0,
+    "notesSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "assets": [],
+  "referenceEvidence": {
+    "origin": "github-hosted-package-qualified",
+    "verifiedReceiptSha256": "842da16da8d05b2deb74938821356df868509c7dd51f6c33cd8b13cf8aaf14bb",
+    "limitations": [
+      "Phase 5 runtime qualification remains pending",
+      "Publication remains pending",
+      "Production image qualification and deployment remain pending"
+    ]
+  },
+  "harnessProfile": "v2026.11.3"
+}

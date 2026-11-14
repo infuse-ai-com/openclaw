@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "candidateId": "v2026.11.3-infuse-e7d74d56a5",
+  "lanes": [
+    {
+      "name": "arm64Consumer",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "profile": "contracts/arm64-consumer.json", "inventorySha256": "89b6dd5f773710a16818fc13e505813abf8011df3010244294d966a216ea5068"},
+      "resources": {"platform": "linux", "architecture": "arm64", "cpus": 4, "memoryBytes": 5368709120},
+      "dependencies": [{"name": "node-linux-arm64", "version": "24.22.1", "sha256": "932a44adcdb8f5dfbf00f00eb38da8d22b450b2ad258b6d1b2319beca823bfbd"}],
+      "execution": {"timeoutMinutes": 60, "network": "public-proxy", "secretClass": "none", "disposable": true}
+    },
+    {
+      "name": "publicInventory",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "profile": "contracts/public-inventory.json", "inventorySha256": "89b6dd5f773710a16818fc13e505813abf8011df3010244294d966a216ea5068"},
+      "resources": {"platform": "linux", "architecture": "arm64", "cpus": 4, "memoryBytes": 5368709120},
+      "dependencies": [{"name": "node-linux-arm64", "version": "24.22.1", "sha256": "932a44adcdb8f5dfbf00f00eb38da8d22b450b2ad258b6d1b2319beca823bfbd"}],
+      "execution": {"timeoutMinutes": 60, "network": "public-proxy", "secretClass": "none", "disposable": true}
+    },
+    {
+      "name": "managedNative",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/internal-tools/studio", "commit": "f9dbff5dfc1cf4cf08a5b5435ebadb701447da3b", "profile": "contracts/managed-native.json", "inventorySha256": "8951298d3420b53e74e62efd302d653c75cb76b84164cd64b5f827d2615b1e3c"},
+      "resources": {"platform": "linux", "architecture": "amd64", "cpus": 4, "memoryBytes": 11811160064},
+      "dependencies": [
+        {"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"},
+        {"name": "postgres", "version": "17.11", "sha256": "051f7b7b3abdd564d5d1bd1e8c4b9c1b6e77087d1dd22020ede611c096a272e0"},
+        {"name": "mattermost-team-edition", "version": "11.7.14", "sha256": "42bbd1634cc61412579b72121a6120b945bc92153d8785daeee8562a58b36426"}
+      ],
+      "execution": {"timeoutMinutes": 120, "network": "disposable-private", "secretClass": "disposable-fixture", "disposable": true}
+    },
+    {
+      "name": "ordinaryMattermost",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/internal-tools/studio", "commit": "f9dbff5dfc1cf4cf08a5b5435ebadb701447da3b", "profile": "contracts/ordinary-mattermost.json", "inventorySha256": "8951298d3420b53e74e62efd302d653c75cb76b84164cd64b5f827d2615b1e3c"},
+      "resources": {"platform": "linux", "architecture": "amd64", "cpus": 2, "memoryBytes": 2147483648},
+      "dependencies": [{"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"}],
+      "execution": {"timeoutMinutes": 60, "network": "disposable-private", "secretClass": "disposable-fixture", "disposable": true}
+    },
+    {
+      "name": "amd64",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/agents/openclaw-k8s-swarm", "commit": "8ac6192d264cc65d44e50217e6b365c8628c0425", "profile": "contracts/amd64.json", "inventorySha256": "30eb634d5877d8b131d884886d2f9e2518e9e83657b911220dd0b59ee109817b"},
+      "resources": {"platform": "linux", "architecture": "amd64", "cpus": 8, "memoryBytes": 11811160064},
+      "dependencies": [{"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"}],
+      "execution": {"timeoutMinutes": 60, "network": "public-proxy", "secretClass": "none", "disposable": true}
+    },
+    {
+      "name": "localImage",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/agents/openclaw-k8s-swarm", "commit": "8ac6192d264cc65d44e50217e6b365c8628c0425", "profile": "contracts/local-image.json", "inventorySha256": "30eb634d5877d8b131d884886d2f9e2518e9e83657b911220dd0b59ee109817b"},
+      "resources": {"platform": "linux", "architecture": "amd64", "cpus": 8, "memoryBytes": 11811160064},
+      "dependencies": [
+        {"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"},
+        {"name": "playwright", "version": "pinned-amd64", "sha256": "eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27"}
+      ],
+      "execution": {"timeoutMinutes": 60, "network": "public-proxy", "secretClass": "none", "disposable": true}
+    },
+    {
+      "name": "builderBoundary",
+      "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
+      "fixture": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "profile": "contracts/builder-boundary.json", "inventorySha256": "89b6dd5f773710a16818fc13e505813abf8011df3010244294d966a216ea5068"},
+      "resources": {"platform": "linux", "architecture": "amd64", "cpus": 2, "memoryBytes": 2147483648},
+      "dependencies": [{"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"}],
+      "execution": {"timeoutMinutes": 10, "network": "offline", "secretClass": "none", "disposable": true}
+    }
+  ]
+}

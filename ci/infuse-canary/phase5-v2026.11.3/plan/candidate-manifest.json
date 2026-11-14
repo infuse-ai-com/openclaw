@@ -1,0 +1,17 @@
+{
+  "schema": 1,
+  "hostVersion": "2026.11.3",
+  "hostCommit": "e7d74d56a583e7596977058e7f73c6dc7c959810",
+  "baseCommit": "847611dcaa3bf0e2783335f961dd1fd0580e4d9f",
+  "buildTimestamp": "2026-11-14T12:48:55.522Z",
+  "sourceSnapshotSha256": "f532f2a27640a6ef473ea901a60d80acba827632379b24cd1b29c4b033e7d52a",
+  "sourceLockSha256": "cac4e3810242167d941d14b6befd63959ca76bd10289437c33caa5366eeb383c",
+  "hostPackageSha256": "d2ac347e1bab31316b231f42d3ad1c5aac884f92792a351544432582c069cd22",
+  "hostPackageFile": "openclaw-2026.11.3-e7d74d56a5.tgz",
+  "ciCommit": "4e05299090f4646158f7b276c4c4711df0163ccd",
+  "dispatcherCommit": "ca42909c376478dc6faf3382fb52881966cf2086",
+  "workflowRunId": 43596687240,
+  "workflowRunAttempt": 1,
+  "published": false,
+  "deployed": false
+}

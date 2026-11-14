@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "status": "prepared-only",
+  "candidateId": "v2026.11.3-infuse-e7d74d56a5",
+  "sourceCommit": "e7d74d56a583e7596977058e7f73c6dc7c959810",
+  "ciCommit": "4e05299090f4646158f7b276c4c4711df0163ccd",
+  "workflowRunId": 43596687240,
+  "hosted": {
+    "receipt": {
+      "bytes": 5581,
+      "sha256": "842da16da8d05b2deb74938821356df868509c7dd51f6c33cd8b13cf8aaf14bb"
+    },
+    "hostHeartbeats": 336,
+    "compilerGraphs": 36,
+    "allStepsPassed": true
+  },
+  "candidateManifest": {
+    "bytes": 775,
+    "sha256": "4bd517b31954039c8e3ac5cf00f89b9908ad38ee1da4c46f64fa151f97102ca7"
+  },
+  "packages": [
+    {
+      "name": "@openclaw/acpx",
+      "file": "openclaw-acpx-2026.11.3.tgz",
+      "bytes": 137080,
+      "sha256": "44c539af0985cdc5e7775629726beed444b55d84a26825374b014c3f00442c3f"
+    },
+    {
+      "name": "@openclaw/codex",
+      "file": "openclaw-codex-2026.11.3.tgz",
+      "bytes": 821710,
+      "sha256": "0d7e194694818490f55c21ec95e7182271b58596963c9eb74901555b649b6fe8"
+    },
+    {
+      "name": "@openclaw/diagnostics-otel",
+      "file": "openclaw-diagnostics-otel-2026.11.3.tgz",
+      "bytes": 2577274,
+      "sha256": "ac5ffddcfe87fbb3bf0af657b1cfb31cc3813b849ad6cabc9d3878f31c4b6b7c"
+    },
+    {
+      "name": "@openclaw/mattermost",
+      "file": "openclaw-mattermost-2026.11.3.tgz",
+      "bytes": 1259986,
+      "sha256": "f1ef95b1a01c7ed49f63ce179cc9d09d6ec553cb8c3eb124b4cf313000836d1e"
+    },
+    {
+      "name": "openclaw",
+      "file": "openclaw-2026.11.3-e7d74d56a5.tgz",
+      "bytes": 116611640,
+      "sha256": "d2ac347e1bab31316b231f42d3ad1c5aac884f92792a351544432582c069cd22"
+    }
+  ],
+  "packageSetSha256": "631f77daad32e5a4c16f5647f941549504880a0d6f7b175f8707ba70613a3238",
+  "phase5Profile": {
+    "bytes": 3111,
+    "sha256": "83c1da6ae72fe98863e73078424226d3046fc32c7733a77e8cf63c430d51cc51"
+  },
+  "fixtureSpecs": {
+    "bytes": 7147,
+    "sha256": "10296e30971a5d12a9871fdfb87ea296492e4e60fe0f828500f8a4314ad5b396"
+  },
+  "lanes": [
+    "arm64Consumer",
+    "publicInventory",
+    "managedNative",
+    "ordinaryMattermost",
+    "amd64",
+    "localImage",
+    "builderBoundary"
+  ],
+  "candidateCodeExecuted": false,
+  "published": false,
+  "deployed": false
+}
