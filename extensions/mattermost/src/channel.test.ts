@@ -520,6 +520,11 @@ describe("Mattermost actions", () => {
       ),
     );
     expect(result.content).toEqual([{ type: "text", text: fixture.expected }]);
+    expect(result.details).toEqual(
+      fixture.mode === "remove"
+        ? { ok: true, changed: true, removed: "thumbsup" }
+        : { ok: true, changed: true, added: "thumbsup" },
+    );
   });
 
   it("preserves skin tone when adding a raw glyph reaction", async () => {
@@ -541,7 +546,11 @@ describe("Mattermost actions", () => {
     expect(result.content).toEqual([
       { type: "text", text: "Reacted with :thumbsup_medium_skin_tone: on POST1" },
     ]);
-    expect(result.details).toStrictEqual({});
+    expect(result.details).toStrictEqual({
+      ok: true,
+      changed: true,
+      added: "thumbsup_medium_skin_tone",
+    });
   });
 
   it("carries provider attachment text through prepared payload delivery", async () => {
