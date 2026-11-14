@@ -233,6 +233,7 @@ jobs:
 
           version="${INFUSE_CANARY_QUALIFICATION_REF#qualify/canary-openclaw-v}"
           version="${version%-r*}"
+          qualification_attempt="${INFUSE_CANARY_QUALIFICATION_REF##*-r}"
           controller_root="$controller_dir/ci/infuse-canary/phase5-v${version}"
           execution="$controller_root/execution.json"
           runner="$controller_root/run-phase5.py"
@@ -240,7 +241,7 @@ jobs:
           test -f "$runner"
 
           mapfile -t binding < <(
-            /usr/bin/python3 -I - "$execution" "$version" <<'PY'
+            /usr/bin/python3 -I - "$execution" "$version" "$qualification_attempt" <<'PY'
           import json
           import pathlib
           import re
@@ -248,8 +249,11 @@ jobs:
 
           execution = json.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))
           version = sys.argv[2]
+          qualification_attempt = int(sys.argv[3])
           if execution.get("schema") != 1:
               raise SystemExit("unsupported Phase 5 execution schema")
+          if execution.get("qualificationAttempt") != qualification_attempt:
+              raise SystemExit("Phase 5 qualification attempt mismatch")
           if execution.get("repository") != "infuse-ai-com/openclaw":
               raise SystemExit("Phase 5 repository mismatch")
           if execution.get("runnerLabel") != "blacksmith-8vcpu-ubuntu-2404":
@@ -318,14 +322,14 @@ jobs:
           /usr/bin/python3 -I "${{ steps.resolve-phase5.outputs.runner }}" \
             --artifact-root "$RUNNER_TEMP/infuse-canary-hosted-artifact" \
             --controller-sha "$INFUSE_CANARY_QUALIFICATION_SHA" \
-            --output "$GITHUB_WORKSPACE/phase5-output"
+            --output "$RUNNER_TEMP/phase5-output"
 
       - name: Retain temporary sanitized Phase 5 evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: infuse-canary-phase5-${{ inputs.qualification_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: phase5-output/
+          path: ${{ runner.temp }}/phase5-output/
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
