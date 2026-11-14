@@ -333,3 +333,4 @@ jobs:
           if-no-files-found: error
           retention-days: 1
           compression-level: 0
+          include-hidden-files: true
