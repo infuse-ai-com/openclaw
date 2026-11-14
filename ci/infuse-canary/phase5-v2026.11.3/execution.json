@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "qualificationAttempt": 6,
+  "qualificationAttempt": 7,
   "repository": "infuse-ai-com/openclaw",
   "runnerLabel": "blacksmith-8vcpu-ubuntu-2404",
   "candidateId": "v2026.11.3-infuse-f5fce6c00e",
