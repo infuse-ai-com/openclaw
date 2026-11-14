@@ -57,7 +57,7 @@
   },
   "fixtureSpecs": {
     "bytes": 7147,
-    "sha256": "cef7a968d6072b3c132b44b0014e17ed0f43163fcb71ef71cc782db5bf78feb9"
+    "sha256": "81ba7428714bfe99d62361048158803a579dbf7f8766b6ae4aa42f87e3c83842"
   },
   "lanes": [
     "arm64Consumer",

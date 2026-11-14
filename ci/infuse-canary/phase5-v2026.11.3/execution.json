@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "qualificationAttempt": 5,
+  "qualificationAttempt": 6,
   "repository": "infuse-ai-com/openclaw",
   "runnerLabel": "blacksmith-8vcpu-ubuntu-2404",
   "candidateId": "v2026.11.3-infuse-f5fce6c00e",
@@ -14,18 +14,18 @@
   "files": {
     "manifest.json": "ff746f02bbcf9d29a68b29dd9f31d0932524ff58473a7a02f14c0d80cd4d9460",
     "plan/candidate-manifest.json": "b0c0d52537e196603c3470d2675bea1a1497bfaf35114d49e201b66929bf4c5e",
-    "plan/fixture-specs.json": "cef7a968d6072b3c132b44b0014e17ed0f43163fcb71ef71cc782db5bf78feb9",
-    "plan/phase5-plan.json": "b178cf13ffe670fc819814a6b07967cde3134197f2bc510e09f649238e694cfd",
+    "plan/fixture-specs.json": "81ba7428714bfe99d62361048158803a579dbf7f8766b6ae4aa42f87e3c83842",
+    "plan/phase5-plan.json": "8d1d6dfc8b008a2f60edbe60cf96b8b25ded7b36da7074fe20b0baf87d932de6",
     "plan/phase5-profile.json": "83c1da6ae72fe98863e73078424226d3046fc32c7733a77e8cf63c430d51cc51",
     "inputs/builder-fixture.tgz": "75c5c4eacef4ec76543beb3c30f3964848ad0c42782cf28b527bc302ff69c163",
-    "inputs/studio-fixture.tgz": "9102f5771596970d0e4066d90fc2a1da4dadf763fd4ac6bc5d213353c022aff4",
-    "inputs/studio-inventory.json": "a310cd54ddd486dd1387f33cbb9cd95f56dd3fd242c669f906dd12e0dcc712df",
+    "inputs/studio-fixture.tgz": "b7f32571d14967eb6abe113e069d747a4958a4bc3054b3a2323d38caa49eacb5",
+    "inputs/studio-inventory.json": "8951298d3420b53e74e62efd302d653c75cb76b84164cd64b5f827d2615b1e3c",
     "inputs/swarm-fixture.tgz": "a38ce38616bb0786e89dcec63fef9ee2743451460cfeb1578a8b682af7b41644",
     "inputs/swarm-inventory.json": "30eb634d5877d8b131d884886d2f9e2518e9e83657b911220dd0b59ee109817b"
   },
   "repositories": {
     "builder": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef",
-    "studio": "ff0c0ed66df8251f08856ffe8a8ea8ee70802a92",
+    "studio": "f9dbff5dfc1cf4cf08a5b5435ebadb701447da3b",
     "swarm": "8ac6192d264cc65d44e50217e6b365c8628c0425"
   },
   "images": [

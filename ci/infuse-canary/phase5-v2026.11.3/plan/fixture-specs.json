@@ -21,7 +21,7 @@
     {
       "name": "managedNative",
       "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
-      "fixture": {"repository": "platform/internal-tools/studio", "commit": "ff0c0ed66df8251f08856ffe8a8ea8ee70802a92", "profile": "contracts/managed-native.json", "inventorySha256": "a310cd54ddd486dd1387f33cbb9cd95f56dd3fd242c669f906dd12e0dcc712df"},
+      "fixture": {"repository": "platform/internal-tools/studio", "commit": "f9dbff5dfc1cf4cf08a5b5435ebadb701447da3b", "profile": "contracts/managed-native.json", "inventorySha256": "8951298d3420b53e74e62efd302d653c75cb76b84164cd64b5f827d2615b1e3c"},
       "resources": {"platform": "linux", "architecture": "amd64", "cpus": 4, "memoryBytes": 11811160064},
       "dependencies": [
         {"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"},
@@ -33,7 +33,7 @@
     {
       "name": "ordinaryMattermost",
       "controller": {"repository": "platform/agents/openclaw-canary-builder", "commit": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef", "path": "phase5-adapters/run-adapter.py", "bytes": 11074, "sha256": "cf95552024e444e6529e836794a3887f58899d7eeed10c3bc0a7fa685b22038f"},
-      "fixture": {"repository": "platform/internal-tools/studio", "commit": "ff0c0ed66df8251f08856ffe8a8ea8ee70802a92", "profile": "contracts/ordinary-mattermost.json", "inventorySha256": "a310cd54ddd486dd1387f33cbb9cd95f56dd3fd242c669f906dd12e0dcc712df"},
+      "fixture": {"repository": "platform/internal-tools/studio", "commit": "f9dbff5dfc1cf4cf08a5b5435ebadb701447da3b", "profile": "contracts/ordinary-mattermost.json", "inventorySha256": "8951298d3420b53e74e62efd302d653c75cb76b84164cd64b5f827d2615b1e3c"},
       "resources": {"platform": "linux", "architecture": "amd64", "cpus": 2, "memoryBytes": 2147483648},
       "dependencies": [{"name": "node-linux-amd64", "version": "24.22.1", "sha256": "e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d"}],
       "execution": {"timeoutMinutes": 60, "network": "disposable-private", "secretClass": "disposable-fixture", "disposable": true}
