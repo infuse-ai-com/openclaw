@@ -436,7 +436,9 @@ const mattermostMessageActions: ChannelMessageActionAdapter = {
       remove
         ? `Removed reaction :${emojiName}: from ${postId}`
         : `Reacted with :${emojiName}: on ${postId}`,
-      {},
+      remove
+        ? { ok: true, changed: true, removed: emojiName }
+        : { ok: true, changed: true, added: emojiName },
     );
   },
 };
