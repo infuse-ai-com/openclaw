@@ -1,0 +1,64 @@
+{
+  "schema": 3,
+  "candidateId": "v2026.11.3-infuse-f5fce6c00e",
+  "source": {
+    "repository": "infuse-ai-com/openclaw",
+    "upstreamTag": "v2026.11.3",
+    "upstreamCommit": "847611dcaa3bf0e2783335f961dd1fd0580e4d9f",
+    "branch": "canary-openclaw-v2026.11.3",
+    "commit": "f5fce6c00efea370749cd56d00c7600048e0e080",
+    "snapshot": {
+      "sha256": "5e85c352e1da755cae3195f08a02eb94dbdb8f0e89d81f38b42b5f56fc746029",
+      "paths": 56695,
+      "bytes": 683496930
+    },
+    "lockSha256": "cac4e3810242167d941d14b6befd63959ca76bd10289437c33caa5366eeb383c"
+  },
+  "build": {
+    "version": "2026.11.3",
+    "timestamp": "2026-11-14T00:33:14.095Z",
+    "nodeImage": "docker.io/library/node:24.22.1-bookworm@sha256:6449e19d8184d84062525b6a7524def03146c2cb04a7f08b076680d0e8e4240a",
+    "nodeVersion": "24.22.1",
+    "pnpmVersion": "12.15.0",
+    "plugins": [
+      "mattermost",
+      "codex",
+      "acpx",
+      "diagnostics-otel"
+    ],
+    "hostedCpus": 8,
+    "hostedMemoryGiB": 23,
+    "nativeCpus": 4,
+    "nativeMemoryGiB": 6,
+    "packageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+    "compilerGraphs": 36
+  },
+  "ci": {
+    "branch": "build/canary-openclaw-v2026.11.3-r2",
+    "commit": "1a6bcab687e5d299958a1c0dfbab7adaa358e623",
+    "workflowId": 417706371,
+    "runId": 43535282378,
+    "runAttempt": 1,
+    "buildAttempt": 2
+  },
+  "harnessLockSha256": "3983a6534b89ade11b3be6c0fd5cb5970298bcb22cfd2b707d27ce92f6f8aa41",
+  "release": {
+    "tag": "canary-v2026.11.3-infuse-bundle-f5fce6c00e-r1",
+    "title": "2026.11.3 Infuse custom canary (f5fce6c00e)",
+    "prerelease": true,
+    "markLatest": false,
+    "id": 0,
+    "notesSha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "assets": [],
+  "referenceEvidence": {
+    "origin": "proposed-unqualified",
+    "verifiedReceiptSha256": "8f2766f4ba6374098ebef0956f43e2988f6bb6a4663217b8e751bde99490b6f2",
+    "limitations": [
+      "Review upstream signature and patch applicability",
+      "Record the exact uploaded CI commit/run before collecting",
+      "Freeze package/runtime/image proof and release notes before publication"
+    ]
+  },
+  "harnessProfile": "v2026.11.3"
+}

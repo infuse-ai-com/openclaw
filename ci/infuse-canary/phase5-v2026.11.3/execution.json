@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "repository": "infuse-ai-com/openclaw",
+  "runnerLabel": "blacksmith-8vcpu-ubuntu-2404",
+  "candidateId": "v2026.11.3-infuse-f5fce6c00e",
+  "sourceCommit": "f5fce6c00efea370749cd56d00c7600048e0e080",
+  "hostedArtifact": {
+    "runId": 43535282378,
+    "runAttempt": 1,
+    "artifactId": 14094782294,
+    "name": "infuse-canary-1a6bcab687e5d299958a1c0dfbab7adaa358e623-43535282378-1"
+  },
+  "files": {
+    "manifest.json": "ff746f02bbcf9d29a68b29dd9f31d0932524ff58473a7a02f14c0d80cd4d9460",
+    "plan/candidate-manifest.json": "b0c0d52537e196603c3470d2675bea1a1497bfaf35114d49e201b66929bf4c5e",
+    "plan/fixture-specs.json": "cef7a968d6072b3c132b44b0014e17ed0f43163fcb71ef71cc782db5bf78feb9",
+    "plan/phase5-plan.json": "b178cf13ffe670fc819814a6b07967cde3134197f2bc510e09f649238e694cfd",
+    "plan/phase5-profile.json": "83c1da6ae72fe98863e73078424226d3046fc32c7733a77e8cf63c430d51cc51",
+    "inputs/builder-fixture.tgz": "75c5c4eacef4ec76543beb3c30f3964848ad0c42782cf28b527bc302ff69c163",
+    "inputs/studio-fixture.tgz": "9102f5771596970d0e4066d90fc2a1da4dadf763fd4ac6bc5d213353c022aff4",
+    "inputs/studio-inventory.json": "a310cd54ddd486dd1387f33cbb9cd95f56dd3fd242c669f906dd12e0dcc712df",
+    "inputs/swarm-fixture.tgz": "a38ce38616bb0786e89dcec63fef9ee2743451460cfeb1578a8b682af7b41644",
+    "inputs/swarm-inventory.json": "30eb634d5877d8b131d884886d2f9e2518e9e83657b911220dd0b59ee109817b"
+  },
+  "repositories": {
+    "builder": "5094c8ff9b5fa8df37f535f4bdfea683c6c19cef",
+    "studio": "ff0c0ed66df8251f08856ffe8a8ea8ee70802a92",
+    "swarm": "8ac6192d264cc65d44e50217e6b365c8628c0425"
+  },
+  "images": [
+    "docker.io/library/node@sha256:e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d",
+    "docker.io/library/postgres@sha256:051f7b7b3abdd564d5d1bd1e8c4b9c1b6e77087d1dd22020ede611c096a272e0",
+    "docker.io/mattermost/mattermost-team-edition@sha256:42bbd1634cc61412579b72121a6120b945bc92153d8785daeee8562a58b36426",
+    "mcr.microsoft.com/playwright@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27"
+  ],
+  "lanes": ["managedNative", "amd64", "localImage"]
+}
