@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1337,
+      "sha256": "dec95d2a6843f8e44f43ff7db50a06bc396d420a9a36d2f2f1e8b17910c1069c"
+    },
+    {
+      "path": "candidate-contract.json",
+      "bytes": 604,
+      "sha256": "5d50a120cee1b13d673ee8b830cd28bcacfe9dbb2f56f0747288466a9c0022a0"
+    },
+    {
+      "path": "cleanup.py",
+      "bytes": 3286,
+      "sha256": "3ecf6265bdd6a249bba771dd91b4baff6eca5001c1bb7d0106c4a58a6b7aec05"
+    },
+    {
+      "path": "contracts/managed-native.json",
+      "bytes": 390,
+      "sha256": "0c5493ea5f54eb749f913e849f7aa31a485757ca4eefd3b3b129d03f2ea970a6"
+    },
+    {
+      "path": "contracts/ordinary-mattermost.json",
+      "bytes": 400,
+      "sha256": "370893eb958bcdf7c36c6146f28e71fe0e87958290ec4e99e86bf246fd6b9555"
+    },
+    {
+      "path": "ordinary-mattermost-proof.mjs",
+      "bytes": 7206,
+      "sha256": "db74696c42332bab471dfd014b48e7bcaa070fb1a5a44ae0aad33ccfd98b1c89"
+    },
+    {
+      "path": "personal-account-proof.mjs",
+      "bytes": 7013,
+      "sha256": "529b219ee8897c675c9f1a139f1a6e913566eeabd376c17fad22eb2298fd10fa"
+    },
+    {
+      "path": "proxy.mjs",
+      "bytes": 2438,
+      "sha256": "3e1ba558dbbd89b9ad3739b644d9d0188a4b7b939dd2fcc4a8b9b9a451ab5559"
+    },
+    {
+      "path": "run_lane.py",
+      "bytes": 23644,
+      "sha256": "f9ce3646bb6c91167ad902de40101bfd79691f1bbd30995cadd17a54660c7679"
+    },
+    {
+      "path": "runtime-entry.mjs",
+      "bytes": 5362,
+      "sha256": "5824215a666e434d676294ce349805bc233138aba836a9de74f3a655e4cd4dc2"
+    }
+  ]
+}
