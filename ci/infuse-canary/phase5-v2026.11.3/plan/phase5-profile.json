@@ -1,0 +1,83 @@
+{
+  "schema": 1,
+  "version": "2026.11.3",
+  "lanes": [
+    {
+      "name": "arm64Consumer",
+      "platforms": ["linux"],
+      "architectures": ["arm64"],
+      "minCpus": 4,
+      "minMemoryBytes": 5368709120,
+      "networks": ["public-proxy"],
+      "secretClasses": ["none"],
+      "requiredChecks": ["construction", "normalInstall", "nativeBinding", "beforeAfterCustody", "actualGraphPolicy"],
+      "cleanupRequired": true
+    },
+    {
+      "name": "publicInventory",
+      "platforms": ["linux"],
+      "architectures": ["arm64", "amd64"],
+      "minCpus": 2,
+      "minMemoryBytes": 2147483648,
+      "networks": ["public-proxy", "disposable-private"],
+      "secretClasses": ["none", "disposable-fixture"],
+      "requiredChecks": ["packageMetadata", "bundledOrigins", "effectiveInventory", "protocolClosures"],
+      "cleanupRequired": true
+    },
+    {
+      "name": "managedNative",
+      "platforms": ["linux"],
+      "architectures": ["arm64", "amd64"],
+      "minCpus": 4,
+      "minMemoryBytes": 11811160064,
+      "networks": ["disposable-private"],
+      "secretClasses": ["disposable-fixture"],
+      "requiredChecks": ["studioLifecycle", "separateProgressFinal", "requiredOwnerPersistence", "reactionReplyCompletion", "personalAccountIsolation", "modelToolDenial", "delegatedRunDenial", "pluginInferenceDenial", "revisionAndCloseout", "outageRecovery"],
+      "cleanupRequired": true
+    },
+    {
+      "name": "ordinaryMattermost",
+      "platforms": ["linux"],
+      "architectures": ["arm64", "amd64"],
+      "minCpus": 2,
+      "minMemoryBytes": 2147483648,
+      "networks": ["disposable-private"],
+      "secretClasses": ["disposable-fixture"],
+      "requiredChecks": ["separateProgressFinal", "reactionReplyCompletion", "ordinaryFinal", "failureRetention", "postCleanup"],
+      "cleanupRequired": true
+    },
+    {
+      "name": "amd64",
+      "platforms": ["linux"],
+      "architectures": ["amd64"],
+      "minCpus": 4,
+      "minMemoryBytes": 5368709120,
+      "networks": ["public-proxy", "disposable-private"],
+      "secretClasses": ["none", "disposable-fixture"],
+      "requiredChecks": ["normalInstall", "pluginStartup", "readiness", "ownerPersistence", "signalContinuity", "cleanTermination", "beforeAfterCustody"],
+      "cleanupRequired": true
+    },
+    {
+      "name": "localImage",
+      "platforms": ["linux"],
+      "architectures": ["amd64"],
+      "minCpus": 4,
+      "minMemoryBytes": 8589934592,
+      "networks": ["public-proxy", "offline"],
+      "secretClasses": ["none"],
+      "requiredChecks": ["assembledInputPreflight", "build", "architecture", "imageDigest", "packageCustody", "runtimeAssets", "browserToolbox", "beforeAfterSourceCustody"],
+      "cleanupRequired": true
+    },
+    {
+      "name": "builderBoundary",
+      "platforms": ["linux"],
+      "architectures": ["amd64"],
+      "minCpus": 2,
+      "minMemoryBytes": 2147483648,
+      "networks": ["offline"],
+      "secretClasses": ["none"],
+      "requiredChecks": ["unprivileged", "secretless", "networkPolicy", "inputReadback", "ownedCleanup"],
+      "cleanupRequired": true
+    }
+  ]
+}

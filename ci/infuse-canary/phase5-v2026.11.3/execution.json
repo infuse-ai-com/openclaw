@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "qualificationAttempt": 9,
+  "repository": "infuse-ai-com/openclaw",
+  "runnerLabel": "blacksmith-8vcpu-ubuntu-2404",
+  "candidateId": "v2026.11.3-infuse-86930ad581",
+  "sourceCommit": "86930ad5816807683eefcfe2504d834940f111c4",
+  "hostedArtifact": {
+    "runId": 43644680600,
+    "runAttempt": 1,
+    "artifactId": 14138626970,
+    "name": "infuse-canary-cdb4ec5afc02be354c225267fa58072f3bb18abe-43644680600-1"
+  },
+  "files": {
+    "manifest.json": "f12b8eae7fb293a19926fa0d0a01adc643814c229a0616de84c2c0f69120513f",
+    "plan/candidate-manifest.json": "cc763f54d2751ca84b1ffbb29d3d0727a64c51abe6272df307b8819ece780825",
+    "plan/fixture-specs.json": "ec0fc8c966b6d19d3b4dc2ff2ec50089420507b276567d0dc4094899f8d5b2fd",
+    "plan/phase5-plan.json": "e72a4ae954314a138cc83c416b6cc02f9cbab4b9896f68b66d4ef48b957d3cab",
+    "plan/phase5-profile.json": "83c1da6ae72fe98863e73078424226d3046fc32c7733a77e8cf63c430d51cc51",
+    "inputs/builder-fixture.tgz": "c518190ddabc5abaa0abcc5059a568b902ddaa6b2c7b8137c8d7c70330230659",
+    "inputs/studio-fixture.tgz": "b7f32571d14967eb6abe113e069d747a4958a4bc3054b3a2323d38caa49eacb5",
+    "inputs/studio-inventory.json": "8951298d3420b53e74e62efd302d653c75cb76b84164cd64b5f827d2615b1e3c",
+    "inputs/swarm-fixture.tgz": "a38ce38616bb0786e89dcec63fef9ee2743451460cfeb1578a8b682af7b41644",
+    "inputs/swarm-inventory.json": "30eb634d5877d8b131d884886d2f9e2518e9e83657b911220dd0b59ee109817b"
+  },
+  "repositories": {
+    "builder": "7e8ea2ee69a01d46c7e36cf1cbb370df76215d04",
+    "studio": "f9dbff5dfc1cf4cf08a5b5435ebadb701447da3b",
+    "swarm": "8ac6192d264cc65d44e50217e6b365c8628c0425"
+  },
+  "images": [
+    "docker.io/library/node@sha256:e1582112fb9f152ed38eefcd712efc93fee1becb519fdfa57574d5e07eaa5e7d",
+    "docker.io/library/postgres@sha256:051f7b7b3abdd564d5d1bd1e8c4b9c1b6e77087d1dd22020ede611c096a272e0",
+    "docker.io/mattermost/mattermost-team-edition@sha256:42bbd1634cc61412579b72121a6120b945bc92153d8785daeee8562a58b36426",
+    "mcr.microsoft.com/playwright@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27"
+  ],
+  "lanes": ["managedNative", "amd64", "localImage"]
+}
